@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glass Cloud OS (Supabase)</title>
+    <title>Glass Cloud OS (Audio Edition)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -31,6 +30,7 @@
             border: 1px solid var(--glass-border); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
 
+        /* Navigation */
         .nav-container { padding: 15px; z-index: 10; display:flex; justify-content: center; }
         .nav { display: flex; gap: 10px; padding: 8px; border-radius: 20px; }
         .nav button {
@@ -39,10 +39,12 @@
         }
         .nav button.active { background: rgba(255,255,255,0.1); color: var(--accent); box-shadow: 0 0 15px rgba(0,210,255,0.2); }
 
+        /* Views */
         .view { display: none; flex: 1; overflow-y: auto; padding: 20px; position: relative; z-index: 5; }
         .view.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* Library Grid */
         .breadcrumbs { font-size: 1.2rem; margin-bottom: 20px; padding-left: 10px; cursor: pointer; display: flex; align-items: center; gap: 10px;}
         .breadcrumbs span:hover { color: var(--accent); text-decoration: underline; }
 
@@ -56,7 +58,6 @@
         .box:hover { transform: translateY(-3px); border-color: var(--accent); background: rgba(255,255,255,0.08); }
         .box img { width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; z-index: -1; opacity: 0.6; transition: 0.3s;}
         .box:hover img { opacity: 0.3; transform: scale(1.1); }
-        
         .box.folder { border: 2px solid rgba(255,255,255,0.2); background: rgba(0, 210, 255, 0.05); }
         .box-title { z-index: 2; font-size: 0.85rem; margin-top: auto; width: 100%; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; background: rgba(0,0,0,0.4); padding: 5px 0; border-radius: 0 0 15px 15px; }
         
@@ -66,32 +67,69 @@
         .action-btn:hover { background: var(--accent); color: #000; }
         .action-btn.delete:hover { background: #ff4757; }
 
+        /* Stream */
         .stream-container { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; height: 100%; }
-        .stream-feed { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding: 10px; padding-bottom: 100px; }
+        .stream-feed { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding: 10px; padding-bottom: 180px; }
         .msg { max-width: 80%; padding: 15px; border-radius: 15px; position: relative; word-wrap: break-word; }
         .msg.text { background: rgba(255,255,255,0.1); align-self: flex-start; }
         .msg.image { background: transparent; padding: 0; }
-        .msg img { max-width: 100%; border-radius: 15px; }
+        .msg img { max-width: 100%; border-radius: 15px; cursor: pointer; }
+        .msg.audio { background: rgba(0, 210, 255, 0.15); border: 1px solid rgba(0, 210, 255, 0.3); cursor: pointer; transition: 0.2s; }
+        .msg.audio:hover { background: rgba(0, 210, 255, 0.3); }
         .msg .timestamp { font-size: 0.7rem; opacity: 0.5; margin-top: 5px; text-align: right; }
 
-        .input-area { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 780px; display: flex; gap: 10px; padding: 10px; border-radius: 25px; z-index: 20; }
+        /* Input Area */
+        .input-area { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 780px; display: flex; gap: 10px; padding: 10px; border-radius: 25px; z-index: 20; transition: 0.3s; }
+        .input-area.shifted { bottom: 110px; } /* Moves up when player is open */
         .input-area input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 1rem; padding: 5px 10px; }
         .icon-btn { background: none; border: none; color: var(--accent); font-size: 1.2rem; cursor: pointer; }
 
-        /* SEPARATED BUTTONS */
-        .fab-container {
-            position: fixed; bottom: 30px; right: 30px;
-            display: flex; flex-direction: row; gap: 20px; z-index: 10000;
-        }
-        .fab-btn {
-            width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 24px; color: #fff; border: none; cursor: pointer; transition: 0.3s; box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-        }
+        /* Floating Buttons */
+        .fab-container { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: row; gap: 20px; z-index: 10000; transition: 0.3s; }
+        .fab-container.shifted { bottom: 120px; }
+        .fab-btn { width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; border: none; cursor: pointer; transition: 0.3s; box-shadow: 0 6px 20px rgba(0,0,0,0.5); }
         .btn-folder { background: var(--folder-color); }
         .btn-add { background: var(--accent); }
         .fab-btn:hover { transform: scale(1.1); box-shadow: 0 8px 25px rgba(0,0,0,0.7); }
 
-        #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; z-index: 99999; flex-direction: column; gap: 15px; backdrop-filter: blur(5px); }
+        /* --- PROGRESS LOADER --- */
+        #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:none; justify-content:center; align-items:center; z-index: 99999; flex-direction: column; gap: 20px; backdrop-filter: blur(8px); }
+        .progress-container { width: 300px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.2s; box-shadow: 0 0 10px var(--accent); }
+        .loader-text { font-size: 1.2rem; color: #fff; letter-spacing: 1px; }
+
+        /* --- GLOBAL AUDIO PLAYER --- */
+        #audioPlayer {
+            position: fixed; bottom: -100px; left: 0; width: 100%; height: 90px;
+            background: rgba(15, 12, 41, 0.9); backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 30px; box-sizing: border-box; z-index: 50000;
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+        }
+        #audioPlayer.visible { bottom: 0; }
+        
+        .player-info { display: flex; align-items: center; gap: 15px; width: 30%; }
+        .player-icon { width: 50px; height: 50px; background: rgba(255,255,255,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--accent); }
+        .player-text { display: flex; flex-direction: column; }
+        .track-name { font-weight: 600; font-size: 0.9rem; color: white; }
+        .track-status { font-size: 0.75rem; color: rgba(255,255,255,0.6); }
+
+        audio { width: 40%; height: 35px; border-radius: 20px; }
+        
+        .player-close { width: 30%; display: flex; justify-content: flex-end; }
+        .close-btn { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 1.5rem; cursor: pointer; transition: 0.2s; }
+        .close-btn:hover { color: #ff4757; transform: scale(1.1); }
+
+        /* Responsive adjustments for mobile */
+        @media (max-width: 600px) {
+            .player-info { width: 20%; }
+            .player-text { display: none; }
+            audio { width: 60%; }
+            .input-area.shifted { bottom: 100px; }
+            .fab-container.shifted { bottom: 110px; }
+        }
     </style>
 </head>
 <body>
@@ -114,7 +152,7 @@
         <div class="stream-container">
             <div class="stream-feed" id="streamFeed"></div>
         </div>
-        <div class="input-area glass">
+        <div class="input-area glass" id="inputArea">
             <button class="icon-btn" onclick="document.getElementById('syncInputFile').click()"><i class="fa-solid fa-paperclip"></i></button>
             <input type="text" id="chatInput" placeholder="Type a note..." autocomplete="off">
             <button class="icon-btn" onclick="sendText()"><i class="fa-solid fa-paper-plane"></i></button>
@@ -126,7 +164,26 @@
         <button class="fab-btn btn-add" onclick="triggerUpload()" title="Upload File"><i class="fa-solid fa-plus"></i></button>
     </div>
 
-    <div id="loader"><i class="fa-solid fa-circle-notch fa-spin fa-3x" style="color:var(--accent)"></i><span>Processing...</span></div>
+    <div id="audioPlayer">
+        <div class="player-info">
+            <div class="player-icon"><i class="fa-solid fa-music"></i></div>
+            <div class="player-text">
+                <span class="track-name" id="playerTrackName">Select a song</span>
+                <span class="track-status">Now Playing</span>
+            </div>
+        </div>
+        <audio id="globalAudio" controls></audio>
+        <div class="player-close">
+            <button class="close-btn" onclick="closePlayer()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+    </div>
+
+    <div id="loader">
+        <div class="loader-text" id="loaderText">Uploading...</div>
+        <div class="progress-container">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </div>
     
     <input type="file" id="fileInput" style="display: none;">
     <input type="file" id="syncInputFile" style="display: none;">
@@ -135,6 +192,7 @@
         // ==========================================
         // 1. SUPABASE CONFIGURATION
         // ==========================================
+        // Ensure these keys match your project
         const SUPABASE_URL = 'https://loppfklgxwezjknpvoea.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_-LlJPYPevQgRqAj1LE7Abg_dOvzNB-g';
 
@@ -158,11 +216,9 @@
         // ==========================================
         // 3. LIBRARY LOGIC
         // ==========================================
-        
-        // Load initial data
         async function loadLibrary() {
             const grid = document.getElementById("gridContainer");
-            grid.innerHTML = ""; // Clear grid
+            grid.innerHTML = ""; 
 
             const { data, error } = await supabase
                 .from('boxes')
@@ -177,13 +233,9 @@
             }
         }
 
-        // Realtime Listener
         function subscribeRealtime() {
             supabase.channel('boxes-channel')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'boxes' }, payload => {
-                    // Simple reload on any change for simplicity
-                    loadLibrary();
-                })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'boxes' }, payload => { loadLibrary(); })
                 .subscribe();
         }
 
@@ -215,14 +267,18 @@
 
             div.onclick = (e) => {
                 if(e.target.closest('.box-actions')) return;
+                
+                // Logic to handle Clicks
                 if(data.type === 'folder') navigateTo(data.id, data.name);
+                else if(data.type === 'audio') playGlobalAudio(data.url, data.name);
                 else if(data.type === 'image') window.open(data.url, '_blank');
+                else window.open(data.url, '_blank');
             };
             return div;
         }
 
         function navigateTo(folderId, folderName) {
-            currentFolder = folderId.toString(); // Ensure string comparison
+            currentFolder = folderId.toString();
             document.getElementById('folderNameDisplay').innerText = folderId === 'root' ? " / Home" : ` / ${folderName}`;
             loadLibrary();
         }
@@ -230,47 +286,61 @@
         async function createFolder() {
             const name = prompt("Folder Name:", "New Folder");
             if(!name) return;
-            await supabase.from('boxes').insert({
-                name: name, type: 'folder', parent_id: currentFolder
-            });
+            await supabase.from('boxes').insert({ name: name, type: 'folder', parent_id: currentFolder });
         }
 
         async function renameBox(id, oldName) {
             const newName = prompt("Rename:", oldName);
-            if(newName && newName !== oldName) {
-                await supabase.from('boxes').update({ name: newName }).eq('id', id);
-            }
+            if(newName && newName !== oldName) await supabase.from('boxes').update({ name: newName }).eq('id', id);
         }
 
         function downloadFile(url, filename) {
             const a = document.createElement("a");
-            a.href = url;
-            a.setAttribute("download", filename);
-            a.target = "_blank";
-            a.click();
+            a.href = url; a.setAttribute("download", filename); a.target = "_blank"; a.click();
         }
 
         async function deleteBox(id, fileName, type) {
             if(!confirm("Delete?")) return;
-            if(type !== 'folder') {
-                // Attempt to delete file from storage (best effort)
-                const path = fileName.split('/').pop(); // rough path logic
-                // Note: Exact path matching in Supabase storage requires storing the full path. 
-                // For this simple version, we just delete the DB entry.
-            }
             await supabase.from('boxes').delete().eq('id', id);
         }
 
         async function handleDropOnBox(e, targetId, targetType) {
             e.preventDefault(); e.stopPropagation();
             const draggedId = e.dataTransfer.getData("text/plain");
-            if(targetType === 'folder' && draggedId) {
-                await supabase.from('boxes').update({ parent_id: targetId }).eq('id', draggedId);
-            }
+            if(targetType === 'folder' && draggedId) await supabase.from('boxes').update({ parent_id: targetId }).eq('id', draggedId);
         }
 
         // ==========================================
-        // 4. UPLOAD LOGIC
+        // 4. AUDIO PLAYER LOGIC
+        // ==========================================
+        function playGlobalAudio(url, name) {
+            const player = document.getElementById('audioPlayer');
+            const audio = document.getElementById('globalAudio');
+            const trackName = document.getElementById('playerTrackName');
+            
+            // Show player
+            player.classList.add('visible');
+            document.getElementById('fabContainer').classList.add('shifted');
+            document.getElementById('inputArea').classList.add('shifted');
+
+            // Play track
+            trackName.innerText = name;
+            audio.src = url;
+            audio.play();
+        }
+
+        function closePlayer() {
+            const player = document.getElementById('audioPlayer');
+            const audio = document.getElementById('globalAudio');
+            
+            audio.pause();
+            player.classList.remove('visible');
+            document.getElementById('fabContainer').classList.remove('shifted');
+            document.getElementById('inputArea').classList.remove('shifted');
+        }
+
+        // ==========================================
+        // 5. UPLOAD LOGIC WITH PROGRESS
         // ==========================================
         document.getElementById('library').ondragover = (e) => e.preventDefault();
         document.getElementById('library').ondrop = (e) => {
@@ -283,17 +353,34 @@
         document.getElementById('syncInputFile').onchange = (e) => { if(e.target.files[0]) uploadFile(e.target.files[0], 'sync'); };
 
         async function uploadFile(file, context) {
-            document.getElementById('loader').style.display = 'flex';
+            // Reset Progress Bar
+            const loader = document.getElementById('loader');
+            const fill = document.getElementById('progressFill');
+            loader.style.display = 'flex';
+            fill.style.width = '0%';
             
+            // Simulate Progress (Since standard fetch doesn't emit progress easily)
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if(progress > 90) progress = 90; // Hold at 90 until complete
+                fill.style.width = progress + '%';
+            }, 200);
+
             const fileName = `${Date.now()}_${file.name}`;
             const { data, error } = await supabase.storage.from('files').upload(fileName, file);
+
+            clearInterval(interval);
 
             if(error) {
                 console.error(error);
                 alert("Upload failed: " + error.message);
-                document.getElementById('loader').style.display = 'none';
+                loader.style.display = 'none';
                 return;
             }
+
+            // Complete bar
+            fill.style.width = '100%';
 
             // Get Public URL
             const { data: { publicUrl } } = supabase.storage.from('files').getPublicUrl(fileName);
@@ -303,35 +390,21 @@
             if (file.type.startsWith('audio/')) type = 'audio';
 
             if(context === 'library') {
-                await supabase.from('boxes').insert({
-                    name: file.name,
-                    type: type,
-                    url: publicUrl,
-                    parent_id: currentFolder
-                });
+                await supabase.from('boxes').insert({ name: file.name, type: type, url: publicUrl, parent_id: currentFolder });
             } else {
-                await supabase.from('stream').insert({
-                    type: type,
-                    content: publicUrl,
-                    file_name: file.name
-                });
+                await supabase.from('stream').insert({ type: type, content: publicUrl, file_name: file.name });
             }
-            document.getElementById('loader').style.display = 'none';
+            
+            setTimeout(() => { loader.style.display = 'none'; }, 500); // Small delay to show 100%
         }
 
         // ==========================================
-        // 5. SYNC STREAM LOGIC
+        // 6. SYNC STREAM LOGIC
         // ==========================================
         function loadStream() {
-            const feed = document.getElementById("streamFeed");
-            
-            // Initial Load
             supabase.from('stream').select('*').order('created_at', { ascending: true }).limit(50)
-                .then(({ data }) => {
-                    if(data) data.forEach(msg => appendMessage(msg));
-                });
+                .then(({ data }) => { if(data) data.forEach(msg => appendMessage(msg)); });
 
-            // Realtime Listener
             supabase.channel('stream-channel')
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stream' }, payload => {
                     appendMessage(payload.new);
@@ -342,15 +415,27 @@
         function appendMessage(data) {
             const feed = document.getElementById("streamFeed");
             const msgDiv = document.createElement('div');
-            const time = new Date(data.created_at).toLocaleTimeString();
+            const time = new Date(data.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
             if(data.type === 'text') {
                 msgDiv.className = 'msg text glass';
                 msgDiv.innerHTML = `${data.content} <div class="timestamp">${time}</div>`;
-            } else if (data.type === 'image') {
+            } 
+            else if (data.type === 'image') {
                 msgDiv.className = 'msg image';
-                msgDiv.innerHTML = `<img src="${data.content}">`;
-            } else {
+                msgDiv.innerHTML = `<img src="${data.content}" onclick="window.open('${data.content}')">`;
+            } 
+            else if (data.type === 'audio') {
+                // New Audio Message
+                msgDiv.className = 'msg audio glass';
+                msgDiv.onclick = () => playGlobalAudio(data.content, data.file_name);
+                msgDiv.innerHTML = `<div style="display:flex; align-items:center; gap:10px; color:#fff;">
+                    <i class="fa-solid fa-play-circle fa-2x" style="color:var(--accent)"></i>
+                    <span>${data.file_name}</span>
+                </div>
+                <div class="timestamp">${time}</div>`;
+            }
+            else {
                 msgDiv.className = 'msg text glass';
                 msgDiv.innerHTML = `<i class="fa-solid fa-file"></i> <a href="${data.content}" target="_blank" style="color:var(--accent)">${data.file_name}</a>`;
             }
@@ -368,7 +453,7 @@
         }
 
         // ==========================================
-        // 6. UTILS
+        // 7. UTILS
         // ==========================================
         function switchTab(tab) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
