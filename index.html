@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glass Cloud OS 3.3</title>
+    <title>Glass Cloud OS 3.4</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -37,7 +36,7 @@
         }
 
         /* --- Nav & Search --- */
-        .nav-container { padding: 15px; z-index: 10; display:flex; justify-content: center; align-items: center; gap: 20px; }
+        .nav-container { padding: 15px; z-index: 10; display:flex; justify-content: center; align-items: center; gap: 15px; }
         .nav { display: flex; gap: 10px; padding: 5px; border-radius: 20px; }
         .nav button {
             background: none; border: none; color: rgba(255,255,255,0.6); font-weight: 600;
@@ -45,32 +44,26 @@
         }
         .nav button.active { background: rgba(255,255,255,0.1); color: var(--accent); box-shadow: 0 0 15px rgba(0,210,255,0.2); }
 
-        /* FIXED SEARCH BAR STYLING */
-        .search-wrapper { position: relative; width: 250px; height: 40px; }
-        .search-wrapper input { 
-            width: 100%; height: 100%; 
-            background: rgba(255, 255, 255, 0.1); 
-            border: 1px solid rgba(255, 255, 255, 0.2); 
-            border-radius: 50px; /* Pill Shape */
-            padding-left: 45px; /* Room for icon */
-            padding-right: 15px;
-            color: white; outline: none; box-sizing: border-box; 
+        /* SIMPLIFIED SEARCH INPUT (No Icon, No Wrapper) */
+        #searchInput {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 8px 15px;
+            color: white;
             font-family: 'Poppins', sans-serif;
-            backdrop-filter: blur(5px);
+            outline: none;
+            width: 200px;
             transition: 0.3s;
+            font-size: 0.9rem;
         }
-        .search-wrapper input::placeholder { color: rgba(255,255,255,0.5); }
-        .search-wrapper input:focus { 
-            background: rgba(255, 255, 255, 0.15); 
-            border-color: var(--accent); 
-            box-shadow: 0 0 15px rgba(0, 210, 255, 0.15);
+        #searchInput:focus {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--accent);
+            width: 220px;
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
         }
-        .search-wrapper i { 
-            position: absolute; left: 15px; top: 50%; 
-            transform: translateY(-50%); 
-            color: rgba(255,255,255,0.6); 
-            pointer-events: none;
-        }
+        #searchInput::placeholder { color: rgba(255, 255, 255, 0.5); }
 
         .view { display: none; flex: 1; overflow-y: auto; padding: 20px; position: relative; z-index: 5; }
         .view.active { display: block; animation: fadeIn 0.4s ease; }
@@ -123,7 +116,12 @@
 
         /* --- STREAM & INPUT --- */
         .stream-container { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; height: 100%; }
-        .stream-feed { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding: 15px; padding-bottom: 180px; }
+        .stream-feed { 
+            flex: 1; overflow-y: auto; display: flex; flex-direction: column; 
+            gap: 20px; padding: 15px; 
+            /* Increased padding bottom to prevent overlap with input area */
+            padding-bottom: 180px; 
+        }
         
         .msg { max-width: 80%; padding: 15px 25px; border-radius: 25px; position: relative; word-wrap: break-word; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         .msg.text { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); align-self: flex-start; border-bottom-left-radius: 5px; }
@@ -179,7 +177,7 @@
             .player-text { display: none; }
             audio { width: 65%; }
             .nav-container { flex-direction: column; gap: 10px; }
-            .search-wrapper { width: 100%; }
+            #searchInput { width: 100%; }
         }
     </style>
 </head>
@@ -190,10 +188,7 @@
             <button onclick="switchTab('library')" class="active" id="tab-library"><i class="fa-solid fa-folder-tree"></i> Library</button>
             <button onclick="switchTab('sync')" id="tab-sync"><i class="fa-solid fa-bolt"></i> Stream</button>
         </div>
-        <div class="search-wrapper">
-            <i class="fa-solid fa-search"></i>
-            <input type="text" id="searchInput" placeholder="Search..." onkeyup="filterLibrary()">
-        </div>
+        <input type="text" id="searchInput" placeholder="Search..." onkeyup="filterLibrary()">
     </div>
 
     <div id="library" class="view active">
