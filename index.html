@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glass Cloud OS 2.0</title>
+    <title>Glass Cloud OS 3.1 (Stable Batch)</title>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -36,15 +36,21 @@
             border: 1px solid var(--glass-border); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
 
-        /* --- Nav & Layout --- */
-        .nav-container { padding: 15px; z-index: 10; display:flex; justify-content: center; }
-        .nav { display: flex; gap: 10px; padding: 8px; border-radius: 20px; }
+        /* --- Nav & Search --- */
+        .nav-container { padding: 15px; z-index: 10; display:flex; justify-content: center; align-items: center; gap: 20px; }
+        .nav { display: flex; gap: 10px; padding: 5px; border-radius: 20px; }
         .nav button {
             background: none; border: none; color: rgba(255,255,255,0.6); font-weight: 600;
             cursor: pointer; padding: 8px 20px; border-radius: 15px; transition: 0.3s;
         }
         .nav button.active { background: rgba(255,255,255,0.1); color: var(--accent); box-shadow: 0 0 15px rgba(0,210,255,0.2); }
 
+        .search-bar { position: relative; width: 200px; transition: 0.3s; }
+        .search-bar input { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); padding: 8px 15px 8px 35px; border-radius: 20px; color: white; outline: none; box-sizing: border-box; }
+        .search-bar input:focus { border-color: var(--accent); background: rgba(0,0,0,0.4); }
+        .search-bar i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.5); font-size: 0.8rem; }
+
+        /* --- Views --- */
         .view { display: none; flex: 1; overflow-y: auto; padding: 20px; position: relative; z-index: 5; }
         .view.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -60,7 +66,6 @@
         .box:hover { transform: translateY(-3px); border-color: var(--accent); background: rgba(255,255,255,0.08); }
         .box.selected { border: 2px solid var(--accent); background: var(--selected-bg); }
 
-        /* Dynamic Audio Covers */
         .box img { width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; z-index: -1; opacity: 0.6; transition: 0.3s;}
         .box:hover img { opacity: 0.3; transform: scale(1.1); }
         
@@ -93,7 +98,21 @@
         .track-actions { opacity: 0; transition: 0.2s; display: flex; gap: 10px; }
         .track-item:hover .track-actions { opacity: 1; }
 
-        /* --- FAB & Player --- */
+        /* --- STREAM (RESTORED) --- */
+        .stream-container { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; height: 100%; }
+        .stream-feed { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding: 15px; padding-bottom: 180px; }
+        
+        .msg { max-width: 80%; padding: 15px 25px; border-radius: 25px; position: relative; word-wrap: break-word; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .msg.text { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); align-self: flex-start; border-bottom-left-radius: 5px; }
+        .msg.image { background: transparent; padding: 0; box-shadow: none; align-self: flex-start; }
+        .msg img { max-width: 100%; border-radius: 25px; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; }
+        .msg.audio { background: linear-gradient(135deg, rgba(0, 210, 255, 0.2), rgba(0, 210, 255, 0.05)); border: 1px solid rgba(0, 210, 255, 0.3); cursor: pointer; transition: 0.2s; border-radius: 50px; padding: 10px 20px; align-self: flex-start; }
+        .msg.audio:hover { transform: scale(1.02); background: rgba(0, 210, 255, 0.3); }
+        .msg .timestamp { font-size: 0.65rem; opacity: 0.6; margin-top: 5px; text-align: right; }
+
+        .input-area { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 780px; display: flex; gap: 10px; padding: 10px; border-radius: 25px; z-index: 20; transition: 0.3s; }
+
+        /* --- UI Elements --- */
         .fab-container { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: row; gap: 15px; z-index: 10000; transition: 0.3s; }
         .fab-container.shifted { bottom: 120px; }
         .fab-btn { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff; border: none; cursor: pointer; transition: 0.3s; box-shadow: 0 6px 20px rgba(0,0,0,0.5); }
@@ -104,31 +123,31 @@
         .fab-btn:hover { transform: scale(1.1); }
         .fab-btn.active-select { border: 3px solid white; }
 
-        #audioPlayer {
-            position: fixed; bottom: -100px; left: 0; width: 100%; height: 90px;
-            background: rgba(15, 12, 41, 0.95); backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255,255,255,0.1);
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 30px; box-sizing: border-box; z-index: 50000;
-            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        #audioPlayer { position: fixed; bottom: -100px; left: 0; width: 100%; height: 90px; background: rgba(15, 12, 41, 0.95); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; box-sizing: border-box; z-index: 50000; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         #audioPlayer.visible { bottom: 0; }
         .player-info { display: flex; align-items: center; gap: 15px; width: 30%; }
         .player-art { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; background: #333; }
         audio { width: 40%; height: 35px; border-radius: 20px; }
 
-        /* --- Loader & Lightbox --- */
+        /* --- Overlays --- */
         #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:none; justify-content:center; align-items:center; z-index: 99999; flex-direction: column; gap: 20px; backdrop-filter: blur(8px); }
         .progress-container { width: 300px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
         .progress-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.2s; }
 
         #lightbox { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index: 60000; display: none; justify-content:center; align-items:center; backdrop-filter: blur(10px); animation: fadeIn 0.3s; }
         #lightbox img { max-width: 90%; max-height: 90%; border-radius: 10px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 100000; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); padding: 15px 20px; border-radius: 10px; color: white; animation: slideIn 0.3s ease; display: flex; align-items: center; gap: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .toast i { color: var(--accent); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         
         @media (max-width: 600px) {
             .player-info { width: 20%; }
             .player-text { display: none; }
             audio { width: 65%; }
+            .nav-container { flex-direction: column; gap: 10px; }
+            .search-bar { width: 100%; }
         }
     </style>
 </head>
@@ -137,7 +156,11 @@
     <div class="nav-container">
         <div class="nav glass">
             <button onclick="switchTab('library')" class="active" id="tab-library"><i class="fa-solid fa-folder-tree"></i> Library</button>
-            <button onclick="switchTab('sync')" id="tab-sync"><i class="fa-solid fa-bolt"></i> Sync Stream</button>
+            <button onclick="switchTab('sync')" id="tab-sync"><i class="fa-solid fa-bolt"></i> Stream</button>
+        </div>
+        <div class="search-bar">
+            <i class="fa-solid fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search..." onkeyup="filterLibrary()">
         </div>
     </div>
 
@@ -149,9 +172,13 @@
     </div>
 
     <div id="sync" class="view">
-        <div style="max-width: 800px; margin: 0 auto; padding-top: 50px; text-align: center; opacity: 0.5;">
-            <h2>Sync Stream (Placeholder)</h2>
-            <p>Chat logic remains same as before.</p>
+        <div class="stream-container">
+            <div class="stream-feed" id="streamFeed"></div>
+        </div>
+        <div class="input-area glass" id="inputArea">
+            <button class="icon-btn" onclick="document.getElementById('syncInputFile').click()" style="background:none; border:none; color:var(--accent); font-size:1.2rem; cursor:pointer;"><i class="fa-solid fa-paperclip"></i></button>
+            <input type="text" id="chatInput" placeholder="Type a note..." style="flex:1; background:transparent; border:none; color:white; outline:none; padding:5px 10px;">
+            <button class="icon-btn" onclick="sendText()" style="background:none; border:none; color:var(--accent); font-size:1.2rem; cursor:pointer;"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
     </div>
 
@@ -184,8 +211,11 @@
     <div id="lightbox" onclick="this.style.display='none'">
         <img id="lightboxImg" src="">
     </div>
+
+    <div id="toast-container"></div>
     
     <input type="file" id="fileInput" style="display: none;" multiple>
+    <input type="file" id="syncInputFile" style="display: none;">
 
     <script>
         const SUPABASE_URL = 'https://loppfklgxwezjknpvoea.supabase.co';
@@ -196,10 +226,24 @@
         let currentFolder = 'root';
         let selectionMode = false;
         let selectedItems = new Set();
+        let libraryData = []; // Store local copy for search
 
         function init() {
             loadLibrary();
+            loadStream();
             subscribeRealtime();
+            document.getElementById('chatInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendText(); });
+            window.addEventListener('paste', handlePaste);
+        }
+
+        // --- TOAST NOTIFICATIONS ---
+        function showToast(msg, type='info') {
+            const container = document.getElementById('toast-container');
+            const div = document.createElement('div');
+            div.className = 'toast';
+            div.innerHTML = `<i class="fa-solid ${type==='error'?'fa-circle-exclamation':'fa-circle-check'}"></i> ${msg}`;
+            container.appendChild(div);
+            setTimeout(() => { div.style.opacity = '0'; setTimeout(()=>div.remove(), 300); }, 3000);
         }
 
         // --- LIBRARY LOGIC ---
@@ -221,7 +265,9 @@
             const { data } = await supabase.from('boxes').select('*').eq('parent_id', currentFolder).order('created_at', { ascending: false });
             if (!data) return;
 
-            // Auto-set Album cover if missing (find first image or first audio with cover)
+            libraryData = data; // Save for search
+
+            // Auto-set Album cover
             if (isAlbum && !albumCover) {
                 const img = data.find(i => i.type === 'image') || data.find(i => i.cover_url);
                 if(img) {
@@ -233,10 +279,18 @@
             isAlbum ? renderAlbumView(container, data, albumName, albumCover) : renderGridView(container, data);
         }
 
+        function filterLibrary() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = libraryData.filter(item => item.name.toLowerCase().includes(query));
+            const container = document.getElementById("libraryContent");
+            container.innerHTML = "";
+            renderGridView(container, filtered);
+        }
+
         function renderGridView(container, items) {
             const grid = document.createElement('div');
             grid.className = 'grid';
-            if(items.length === 0 && currentFolder !== 'root') grid.innerHTML = `<div style="width:100%;text-align:center;opacity:0.5;grid-column:1/-1;padding-top:50px;">Folder is empty</div>`;
+            if(items.length === 0) grid.innerHTML = `<div style="width:100%;text-align:center;opacity:0.5;grid-column:1/-1;padding-top:50px;">Nothing here yet</div>`;
 
             items.forEach(item => {
                 const div = document.createElement('div');
@@ -250,7 +304,6 @@
                 div.ondrop = (e) => handleDropOnBox(e, item.id, item.type, item.subtype);
 
                 let visual = '';
-                // Logic: Use cover_url if available (Albums OR Audio with metadata), else fallbacks
                 if(item.cover_url) visual = `<img src="${item.cover_url}">`; 
                 else if(item.type === 'image') visual = `<img src="${item.url}">`;
                 else if(item.subtype === 'album') visual = `<i class="fa-solid fa-compact-disc fa-4x" style="color:var(--accent)"></i>`;
@@ -260,6 +313,7 @@
 
                 div.innerHTML = `
                     <div class="box-actions">
+                        <button class="action-btn" onclick="renameBox('${item.id}', '${item.name}')"><i class="fa-solid fa-pen"></i></button>
                         ${item.type !== 'folder' && item.subtype !== 'album' ? `<button class="action-btn" onclick="downloadFile('${item.url}', '${item.name}')"><i class="fa-solid fa-download"></i></button>` : ''}
                         <button class="action-btn delete" onclick="deleteBox('${item.id}')"><i class="fa-solid fa-xmark"></i></button>
                     </div>
@@ -281,6 +335,7 @@
                         <p>${items.length} Items</p>
                         <div class="album-btns">
                             <button class="pill-btn" onclick="downloadAlbumAsZip('${name}', '${currentFolder}')"><i class="fa-solid fa-file-zipper"></i> Download ZIP</button>
+                            <button class="pill-btn" onclick="renameBox('${currentFolder}', '${name}')"><i class="fa-solid fa-pen"></i> Rename Album</button>
                         </div>
                     </div>
                 </div>
@@ -290,6 +345,7 @@
                             <div class="track-icon"><i class="fa-solid ${item.type==='audio'?'fa-play-circle':(item.type==='image'?'fa-image':'fa-file')}"></i></div>
                             <div class="track-name">${i+1}. ${item.name}</div>
                             <div class="track-actions">
+                                <button class="action-btn" onclick="event.stopPropagation(); renameBox('${item.id}', '${item.name}')"><i class="fa-solid fa-pen"></i></button>
                                 <button class="action-btn" onclick="event.stopPropagation(); downloadFile('${item.url}', '${item.name}')"><i class="fa-solid fa-download"></i></button>
                                 <button class="action-btn delete" onclick="event.stopPropagation(); deleteBox('${item.id}')"><i class="fa-solid fa-trash"></i></button>
                             </div>
@@ -335,6 +391,7 @@
             const { data: album } = await supabase.from('boxes').insert({name:name, type:'folder', subtype:'album', parent_id:currentFolder}).select().single();
             await supabase.from('boxes').update({parent_id:album.id}).in('id', Array.from(selectedItems));
             toggleSelectionMode(); loadLibrary();
+            showToast("Album Created");
         }
 
         function navigateTo(id, name) {
@@ -345,11 +402,54 @@
 
         async function createFolder() {
             const name = prompt("Folder Name:");
-            if(name) await supabase.from('boxes').insert({name:name, type:'folder', parent_id:currentFolder});
+            if(name) {
+                await supabase.from('boxes').insert({name:name, type:'folder', parent_id:currentFolder});
+                showToast("Folder Created");
+            }
+        }
+
+        async function renameBox(id, oldName) {
+            const newName = prompt("Rename:", oldName);
+            if(newName && newName !== oldName) {
+                await supabase.from('boxes').update({name: newName}).eq('id', id);
+                showToast("Renamed");
+            }
         }
 
         async function deleteBox(id) {
-            if(confirm("Delete?")) { await supabase.from('boxes').delete().eq('id', id); loadLibrary(); }
+            if(confirm("Delete this item?")) { 
+                await supabase.from('boxes').delete().eq('id', id); 
+                loadLibrary();
+                showToast("Deleted", "error");
+            }
+        }
+
+        // --- SYNC STREAM ---
+        function loadStream() {
+            supabase.from('stream').select('*').order('created_at', { ascending: true }).limit(50)
+                .then(({ data }) => { if(data) data.forEach(appendMessage); });
+            supabase.channel('stream-channel').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stream' }, p => appendMessage(p.new)).subscribe();
+        }
+
+        function appendMessage(data) {
+            const feed = document.getElementById("streamFeed");
+            const div = document.createElement('div');
+            const time = new Date(data.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+            div.className = 'msg glass ' + (data.type==='text'?'text':(data.type==='audio'?'audio':'image'));
+            
+            if(data.type==='text') div.innerHTML = `${data.content} <div class="timestamp">${time}</div>`;
+            else if(data.type==='image') div.innerHTML = `<img src="${data.content}" onclick="openLightbox('${data.content}')">`;
+            else if(data.type==='audio') {
+                div.onclick = () => playGlobalAudio(data.content, data.file_name);
+                div.innerHTML = `<div style="display:flex; align-items:center; gap:10px; color:white"><i class="fa-solid fa-play"></i> ${data.file_name}</div><div class="timestamp">${time}</div>`;
+            }
+            feed.appendChild(div); feed.scrollTop = feed.scrollHeight;
+        }
+
+        async function sendText() {
+            const input = document.getElementById('chatInput');
+            if(input.value.trim()) await supabase.from('stream').insert({type:'text', content:input.value.trim()});
+            input.value="";
         }
 
         // --- AUDIO PLAYER ---
@@ -362,6 +462,7 @@
             
             player.classList.add('visible');
             document.getElementById('fabContainer').classList.add('shifted');
+            document.getElementById('inputArea').classList.add('shifted');
             audio.src = url; audio.play();
         }
 
@@ -369,6 +470,7 @@
             document.getElementById('globalAudio').pause();
             document.getElementById('audioPlayer').classList.remove('visible');
             document.getElementById('fabContainer').classList.remove('shifted');
+            document.getElementById('inputArea').classList.remove('shifted');
         }
 
         // --- ZIP DOWNLOAD ---
@@ -384,20 +486,16 @@
             const zip = new JSZip();
             const folder = zip.folder(albumName);
 
-            // Fetch all files
             const promises = files.map(async (file) => {
-                if(file.type === 'folder' || file.subtype === 'album') return; // Skip nested folders for now
+                if(file.type === 'folder' || file.subtype === 'album') return; 
                 try {
                     const response = await fetch(file.url);
                     const blob = await response.blob();
                     folder.file(file.name, blob);
-                } catch (err) {
-                    console.error("Failed to zip", file.name);
-                }
+                } catch (err) { console.error(err); }
             });
 
             await Promise.all(promises);
-
             zip.generateAsync({type:"blob"}).then(function(content) {
                 saveAs(content, `${albumName}.zip`);
                 loader.style.display = 'none';
@@ -409,56 +507,52 @@
             const a = document.createElement("a"); a.href = url; a.setAttribute("download", filename); a.target = "_blank"; a.click();
         }
 
-        // --- UPLOAD & DRAG LOGIC ---
+        // --- UPLOAD LOGIC (FIXED) ---
         document.getElementById('library').ondragover = (e) => e.preventDefault();
-        
-        // Drag Drop Logic
         document.getElementById('library').ondrop = async (e) => {
             e.preventDefault();
-            if(e.target.closest('.box')) return; // Handled by box logic
-            handleBatchUpload(Array.from(e.dataTransfer.files));
+            if(e.target.closest('.box')) return; 
+            handleBatchUpload(Array.from(e.dataTransfer.files), 'library');
         };
 
-        // Click Upload Logic
         function triggerUpload() { document.getElementById('fileInput').click(); }
-        document.getElementById('fileInput').onchange = (e) => {
-            handleBatchUpload(Array.from(e.target.files));
-            document.getElementById('fileInput').value = ""; // Reset
-        };
+        document.getElementById('fileInput').onchange = (e) => { handleBatchUpload(Array.from(e.target.files), 'library'); document.getElementById('fileInput').value = ""; };
+        document.getElementById('syncInputFile').onchange = (e) => { if(e.target.files[0]) handleBatchUpload([e.target.files[0]], 'sync'); };
 
-        // Centralized Upload Handler (Handles Auto-Album logic)
-        async function handleBatchUpload(files) {
+        // --- NEW BATCH MANAGER ---
+        async function handleBatchUpload(files, context) {
             if(files.length === 0) return;
+
+            // 1. Initialize Loader
+            const loader = document.getElementById('loader');
+            const loaderText = document.getElementById('loaderText');
+            loader.style.display = 'flex';
 
             let targetParent = currentFolder;
 
-            // Logic: If uploading multiple files to Root, suggest an Album
-            if(files.length > 1 && currentFolder === 'root') {
-                const albumName = prompt(`Create album for these ${files.length} files? Enter name (or Cancel to upload separately):`, `Upload ${new Date().toLocaleDateString()}`);
-                
+            // 2. Handle Auto-Album Creation (If multiple files dropped in Root)
+            if(files.length > 1 && currentFolder === 'root' && context === 'library') {
+                const albumName = prompt(`Create album for these ${files.length} files?`, `Upload ${new Date().toLocaleDateString()}`);
                 if(albumName) {
-                    // 1. Create Album
                     const { data: album } = await supabase.from('boxes').insert({
                         name: albumName, type: 'folder', subtype: 'album', parent_id: currentFolder
                     }).select().single();
-                    
-                    if(album) {
-                        targetParent = album.id;
-                        
-                        // 2. Check for Cover Art in the batch (First Image)
-                        const imageFile = files.find(f => f.type.startsWith('image/'));
-                        if(imageFile) {
-                            // We will upload this image first, get URL, update album
-                            // For simplicity, we let the loop handle upload, but we set the cover_url later
-                            // Or we can just rely on the "loadLibrary" auto-detection logic I added.
-                        }
-                    }
+                    if(album) targetParent = album.id;
                 }
             }
 
-            // Process Uploads
-            for(const file of files) {
-                await uploadFile(file, targetParent);
+            // 3. Sequential Upload Loop
+            for(let i = 0; i < files.length; i++) {
+                loaderText.innerText = `Uploading ${i + 1}/${files.length}...`;
+                // Wait for each upload to finish before starting next
+                await uploadFile(files[i], context, targetParent);
+            }
+
+            // 4. Cleanup
+            loader.style.display = 'none';
+            if(context === 'library') {
+                loadLibrary();
+                showToast("All files uploaded");
             }
         }
 
@@ -468,75 +562,53 @@
             if((targetType === 'folder' || targetSubtype === 'album') && draggedId) {
                 await supabase.from('boxes').update({ parent_id: targetId }).eq('id', draggedId);
                 loadLibrary();
+                showToast("Moved");
             }
         }
 
-        async function uploadFile(file, parentId) {
-            const loader = document.getElementById('loader');
+        async function uploadFile(file, context, specificParentId = null) {
             const fill = document.getElementById('progressFill');
-            loader.style.display = 'flex'; fill.style.width='20%';
+            fill.style.width='20%'; // Visual feedback start
 
             const fileName = `${Date.now()}_${file.name}`;
-            
-            // 1. Upload Actual File
             const { error } = await supabase.storage.from('files').upload(fileName, file);
-            if(error) { alert("Upload Error"); loader.style.display='none'; return; }
+            if(error) { showToast(`Error: ${file.name}`, "error"); return; }
             
-            fill.style.width='60%';
+            fill.style.width='60%'; // Upload done, processing metadata
             const { data: { publicUrl } } = supabase.storage.from('files').getPublicUrl(fileName);
             
             let type = file.type.startsWith('image/') ? 'image' : (file.type.startsWith('audio/') ? 'audio' : 'file');
             let coverUrl = null;
 
-            // 2. If Audio, Extract Metadata (Cover Art)
-            if(type === 'audio') {
-                try {
-                    coverUrl = await extractAudioCover(file);
-                } catch(e) { console.log("No metadata found"); }
+            if(type === 'audio' && context === 'library') {
+                try { coverUrl = await extractAudioCover(file); } catch(e) {}
             }
 
-            // 3. Insert DB Record
-            await supabase.from('boxes').insert({
-                name: file.name, 
-                type: type, 
-                url: publicUrl, 
-                cover_url: coverUrl,
-                parent_id: parentId
-            });
-
-            fill.style.width='100%';
-            setTimeout(() => { loader.style.display = 'none'; fill.style.width='0'; }, 200);
+            if(context === 'library') {
+                await supabase.from('boxes').insert({ name: file.name, type: type, url: publicUrl, cover_url: coverUrl, parent_id: specificParentId || currentFolder });
+            } else {
+                await supabase.from('stream').insert({ type: type, content: publicUrl, file_name: file.name });
+            }
+            fill.style.width='100%'; 
         }
 
-        // Helper: Extract ID3 Art -> Upload to Storage -> Return URL
         function extractAudioCover(file) {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 jsmediatags.read(file, {
                     onSuccess: async (tag) => {
                         const picture = tag.tags.picture;
                         if (picture) {
-                            // Convert bytes to Blob
                             let base64String = "";
-                            for (let i = 0; i < picture.data.length; i++) {
-                                base64String += String.fromCharCode(picture.data[i]);
-                            }
+                            for (let i = 0; i < picture.data.length; i++) base64String += String.fromCharCode(picture.data[i]);
                             const base64 = "data:" + picture.format + ";base64," + window.btoa(base64String);
-                            
-                            // Convert Base64 to File object for Supabase upload
                             const res = await fetch(base64);
                             const blob = await res.blob();
-                            const artFile = new File([blob], `art_${Date.now()}.jpg`, { type: "image/jpeg" });
-
-                            // Upload Art
                             const artName = `covers/${Date.now()}.jpg`;
-                            await supabase.storage.from('files').upload(artName, artFile);
+                            await supabase.storage.from('files').upload(artName, blob);
                             const { data: { publicUrl } } = supabase.storage.from('files').getPublicUrl(artName);
                             resolve(publicUrl);
-                        } else {
-                            resolve(null);
-                        }
-                    },
-                    onError: (error) => { resolve(null); }
+                        } else resolve(null);
+                    }, onError: () => resolve(null)
                 });
             });
         }
@@ -547,6 +619,11 @@
             document.getElementById(tab).classList.add('active');
             document.getElementById('tab-'+tab).classList.add('active');
             document.getElementById('fabContainer').style.display = tab === 'library' ? 'flex' : 'none';
+        }
+
+        function handlePaste(e) {
+            const context = document.getElementById('library').classList.contains('active') ? 'library' : 'sync';
+            if(e.clipboardData.files.length) handleBatchUpload(Array.from(e.clipboardData.files), context);
         }
 
         function subscribeRealtime() {
