@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glass Cloud OS 3.5 (Speed Optimized)</title>
+    <title>Glass Cloud OS 3.6</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
@@ -20,14 +20,15 @@
             --accent: #00d2ff;
             --folder-color: #ffaa00;
             --text: #ffffff;
-            --selected-bg: rgba(0, 210, 255, 0.3);
+            --selected-bg: rgba(0, 210, 255, 0.2);
         }
 
         body {
             margin: 0; font-family: 'Poppins', sans-serif; color: var(--text);
             height: 100vh; display: flex; flex-direction: column; overflow: hidden;
-            background: linear-gradient(45deg, #0f0c29, #302b63, #24243e);
-            background-size: 400% 400%; animation: gradientBG 15s ease infinite;
+            /* CALM BACKGROUND: Deep Slate / Midnight */
+            background: linear-gradient(125deg, #0f172a, #1e293b, #172554);
+            background-size: 300% 300%; animation: gradientBG 30s ease infinite;
         }
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
@@ -43,12 +44,11 @@
             background: none; border: none; color: rgba(255,255,255,0.6); font-weight: 600;
             cursor: pointer; padding: 8px 20px; border-radius: 15px; transition: 0.3s;
         }
-        .nav button.active { background: rgba(255,255,255,0.1); color: var(--accent); box-shadow: 0 0 15px rgba(0,210,255,0.2); }
+        .nav button.active { background: rgba(255,255,255,0.1); color: var(--accent); box-shadow: 0 0 15px rgba(0,210,255,0.1); }
 
-        /* SIMPLIFIED SEARCH INPUT */
         #searchInput {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 15px;
             padding: 8px 15px;
             color: white;
@@ -59,12 +59,11 @@
             font-size: 0.9rem;
         }
         #searchInput:focus {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
             border-color: var(--accent);
             width: 220px;
-            box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
         }
-        #searchInput::placeholder { color: rgba(255, 255, 255, 0.5); }
+        #searchInput::placeholder { color: rgba(255, 255, 255, 0.3); }
 
         .view { display: none; flex: 1; overflow-y: auto; padding: 20px; position: relative; z-index: 5; }
         .view.active { display: block; animation: fadeIn 0.4s ease; }
@@ -106,30 +105,26 @@
         .pill-btn:hover { background: var(--accent); color: black; }
 
         .tracklist { list-style: none; padding: 0; padding-bottom: 150px; }
-        .track-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.2s; cursor: pointer; border-radius: 10px; }
+        .track-item { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.2s; cursor: pointer; border-radius: 10px; }
         .track-item:hover { background: rgba(255,255,255,0.05); }
         .track-item.dragging { opacity: 0.5; background: var(--accent); }
         .track-icon { width: 40px; text-align: center; color: var(--accent); margin-right: 15px; }
-        .track-num { font-family: monospace; opacity: 0.5; margin-right: 15px; width: 20px; text-align: right;}
+        .track-num { font-family: monospace; opacity: 0.5; margin-right: 15px; width: 30px; text-align: right;}
         .track-name { flex: 1; font-weight: 500; }
         .track-actions { opacity: 0; transition: 0.2s; display: flex; gap: 10px; }
         .track-item:hover .track-actions { opacity: 1; }
 
         /* --- STREAM & INPUT --- */
         .stream-container { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; height: 100%; }
-        .stream-feed { 
-            flex: 1; overflow-y: auto; display: flex; flex-direction: column; 
-            gap: 20px; padding: 15px; 
-            padding-bottom: 180px; 
-        }
+        .stream-feed { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding: 15px; padding-bottom: 180px; }
         
         .msg { max-width: 80%; padding: 15px 25px; border-radius: 25px; position: relative; word-wrap: break-word; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .msg.text { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); align-self: flex-start; border-bottom-left-radius: 5px; }
+        .msg.text { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px); align-self: flex-start; border-bottom-left-radius: 5px; border: 1px solid rgba(255,255,255,0.05); }
         .msg.image { background: transparent; padding: 0; box-shadow: none; align-self: flex-start; }
         .msg img { max-width: 100%; border-radius: 25px; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; }
-        .msg.audio { background: linear-gradient(135deg, rgba(0, 210, 255, 0.2), rgba(0, 210, 255, 0.05)); border: 1px solid rgba(0, 210, 255, 0.3); cursor: pointer; transition: 0.2s; border-radius: 50px; padding: 10px 20px; align-self: flex-start; }
+        .msg.audio { background: linear-gradient(135deg, rgba(0, 210, 255, 0.15), rgba(0, 210, 255, 0.02)); border: 1px solid rgba(0, 210, 255, 0.2); cursor: pointer; transition: 0.2s; border-radius: 50px; padding: 10px 20px; align-self: flex-start; }
         .msg.audio:hover { transform: scale(1.02); background: rgba(0, 210, 255, 0.3); }
-        .msg .timestamp { font-size: 0.65rem; opacity: 0.6; margin-top: 5px; text-align: right; }
+        .msg .timestamp { font-size: 0.65rem; opacity: 0.5; margin-top: 5px; text-align: right; }
 
         /* INPUT AREA */
         .input-area { 
@@ -267,7 +262,6 @@
             window.addEventListener('paste', handlePaste);
         }
 
-        // --- TOAST NOTIFICATIONS ---
         function showToast(msg, type='info') {
             const container = document.getElementById('toast-container');
             const div = document.createElement('div');
@@ -277,10 +271,9 @@
             setTimeout(() => { div.style.opacity = '0'; setTimeout(()=>div.remove(), 300); }, 3000);
         }
 
-        // --- NAVIGATION LOGIC ---
         function navigateTo(id, name) {
             if(id !== currentFolder) {
-                navHistory.push(currentFolder); // Save history
+                navHistory.push(currentFolder);
                 currentFolder = id.toString();
                 document.getElementById('folderNameDisplay').innerText = id==='root'?" / Home" : ` / ${name}`;
                 loadLibrary();
@@ -299,7 +292,6 @@
             }
         }
 
-        // --- LIBRARY LOGIC ---
         async function loadLibrary() {
             if(isLoading) return; 
             isLoading = true;
@@ -323,14 +315,13 @@
             libraryData = data; 
             container.innerHTML = ""; 
 
-            // Sort logic
+            // Improved Sorting Logic
             if(isAlbum) {
                 data.sort((a, b) => (a.track_number || 999) - (b.track_number || 999));
             } else {
                 data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             }
 
-            // Auto-set Album cover
             if (isAlbum && !albumCover) {
                 const img = data.find(i => i.type === 'image') || data.find(i => i.cover_url);
                 if(img) {
@@ -425,7 +416,6 @@
             `;
         }
 
-        // --- TRACK REORDERING ---
         function handleTrackDragStart(e, id) {
             e.dataTransfer.setData("text/plain", JSON.stringify({id: id, type: 'reorder'}));
             e.target.classList.add('dragging');
@@ -449,7 +439,6 @@
             } catch(e){}
         }
 
-        // --- ACTIONS ---
         function handleBoxClick(e, item) {
             if(e.target.closest('.box-actions')) return;
             if (selectionMode) {
@@ -512,7 +501,6 @@
             }
         }
 
-        // --- SYNC STREAM ---
         function loadStream() {
             supabase.from('stream').select('*').order('created_at', { ascending: true }).limit(50)
                 .then(({ data }) => { if(data) data.forEach(appendMessage); });
@@ -522,14 +510,20 @@
         function appendMessage(data) {
             const feed = document.getElementById("streamFeed");
             const div = document.createElement('div');
-            const time = new Date(data.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+            
+            // NEW DATE FORMATTING
+            const date = new Date(data.created_at);
+            const dateStr = date.toLocaleDateString(undefined, {month:'numeric', day:'numeric', year:'2-digit'});
+            const timeStr = date.toLocaleTimeString(undefined, {hour:'2-digit', minute:'2-digit'});
+            const finalTime = `${dateStr} • ${timeStr}`;
+
             div.className = 'msg glass ' + (data.type==='text'?'text':(data.type==='audio'?'audio':'image'));
             
-            if(data.type==='text') div.innerHTML = `${data.content} <div class="timestamp">${time}</div>`;
+            if(data.type==='text') div.innerHTML = `${data.content} <div class="timestamp">${finalTime}</div>`;
             else if(data.type==='image') div.innerHTML = `<img src="${data.content}" onclick="openLightbox('${data.content}')">`;
             else if(data.type==='audio') {
                 div.onclick = () => playGlobalAudio(data.content, data.file_name);
-                div.innerHTML = `<div style="display:flex; align-items:center; gap:10px; color:white"><i class="fa-solid fa-play"></i> ${data.file_name}</div><div class="timestamp">${time}</div>`;
+                div.innerHTML = `<div style="display:flex; align-items:center; gap:10px; color:white"><i class="fa-solid fa-play"></i> ${data.file_name}</div><div class="timestamp">${finalTime}</div>`;
             }
             feed.appendChild(div); feed.scrollTop = feed.scrollHeight;
         }
@@ -540,7 +534,6 @@
             input.value="";
         }
 
-        // --- AUDIO PLAYER ---
         function playGlobalAudio(url, name, cover) {
             const player = document.getElementById('audioPlayer');
             const audio = document.getElementById('globalAudio');
@@ -561,7 +554,6 @@
             document.getElementById('inputArea').classList.remove('shifted');
         }
 
-        // --- ZIP DOWNLOAD ---
         async function downloadAlbumAsZip(albumName, albumId) {
             const loader = document.getElementById('loader');
             const text = document.getElementById('loaderText');
@@ -595,7 +587,6 @@
             const a = document.createElement("a"); a.href = url; a.setAttribute("download", filename); a.target = "_blank"; a.click();
         }
 
-        // --- UPLOAD LOGIC (PARALLEL) ---
         document.getElementById('library').ondragover = (e) => e.preventDefault();
         document.getElementById('library').ondrop = async (e) => {
             e.preventDefault();
@@ -651,26 +642,21 @@
 
             const fileName = `${Date.now()}_${file.name}`;
             
-            // --- PARALLEL EXECUTION START ---
-            // 1. Start Upload
             const uploadPromise = supabase.storage.from('files').upload(fileName, file);
             
-            // 2. Start Metadata Extraction (if audio)
             let metaPromise = Promise.resolve({cover: null, track: 0});
             let type = file.type.startsWith('image/') ? 'image' : (file.type.startsWith('audio/') ? 'audio' : 'file');
             
             if(type === 'audio' && context === 'library') {
-                // Safety timeout for metadata: 2 seconds max
+                // Extended timeout for Batch Drag & Drop safety
                 const metaTask = extractAudioMeta(file);
-                const timeoutTask = new Promise(r => setTimeout(() => r({cover:null, track:0}), 2000));
+                const timeoutTask = new Promise(r => setTimeout(() => r({cover:null, track:0}), 10000)); // 10s Timeout
                 metaPromise = Promise.race([metaTask, timeoutTask]);
             }
 
-            // Wait for both
             const [uploadResult, metaResult] = await Promise.all([uploadPromise, metaPromise]);
             
             if(uploadResult.error) { showToast(`Error: ${file.name}`, "error"); return; }
-            // --- PARALLEL EXECUTION END ---
             
             fill.style.width='60%';
             const { data: { publicUrl } } = supabase.storage.from('files').getPublicUrl(fileName);
@@ -689,10 +675,16 @@
 
         function extractAudioMeta(file) {
             return new Promise((resolve) => {
+                // 1. Check Filename for track number (Fallback)
+                let filenameTrack = 0;
+                const match = file.name.match(/^\s*(\d+)/);
+                if(match) filenameTrack = parseInt(match[1]);
+
                 jsmediatags.read(file, {
                     onSuccess: async (tag) => {
                         let cover = null;
-                        let track = 0;
+                        let track = filenameTrack; // Default to filename if tags fail
+                        
                         const picture = tag.tags.picture;
                         if (picture) {
                             let base64String = "";
@@ -705,9 +697,14 @@
                             const { data: { publicUrl } } = supabase.storage.from('files').getPublicUrl(artName);
                             cover = publicUrl;
                         }
-                        if(tag.tags.track) track = parseInt(tag.tags.track.split('/')[0]) || 0;
+                        
+                        // 2. Check ID3 tags for track
+                        if(tag.tags.track) {
+                            track = parseInt(tag.tags.track.split('/')[0]) || filenameTrack;
+                        }
+
                         resolve({cover, track});
-                    }, onError: () => resolve({cover:null, track:0})
+                    }, onError: () => resolve({cover:null, track:filenameTrack})
                 });
             });
         }
