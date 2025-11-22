@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glass Cloud OS</title>
+    <title>Glass Cloud OS (Supabase)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         :root {
@@ -33,7 +31,6 @@
             border: 1px solid var(--glass-border); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
 
-        /* --- Navigation --- */
         .nav-container { padding: 15px; z-index: 10; display:flex; justify-content: center; }
         .nav { display: flex; gap: 10px; padding: 8px; border-radius: 20px; }
         .nav button {
@@ -42,12 +39,10 @@
         }
         .nav button.active { background: rgba(255,255,255,0.1); color: var(--accent); box-shadow: 0 0 15px rgba(0,210,255,0.2); }
 
-        /* --- Views --- */
         .view { display: none; flex: 1; overflow-y: auto; padding: 20px; position: relative; z-index: 5; }
         .view.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- Library Grid --- */
         .breadcrumbs { font-size: 1.2rem; margin-bottom: 20px; padding-left: 10px; cursor: pointer; display: flex; align-items: center; gap: 10px;}
         .breadcrumbs span:hover { color: var(--accent); text-decoration: underline; }
 
@@ -71,7 +66,6 @@
         .action-btn:hover { background: var(--accent); color: #000; }
         .action-btn.delete:hover { background: #ff4757; }
 
-        /* --- Sync Stream --- */
         .stream-container { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; height: 100%; }
         .stream-feed { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding: 10px; padding-bottom: 100px; }
         .msg { max-width: 80%; padding: 15px; border-radius: 15px; position: relative; word-wrap: break-word; }
@@ -84,44 +78,18 @@
         .input-area input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 1rem; padding: 5px 10px; }
         .icon-btn { background: none; border: none; color: var(--accent); font-size: 1.2rem; cursor: pointer; }
 
-        /* --- FIXED & SEPARATED BUTTONS --- */
+        /* SEPARATED BUTTONS */
         .fab-container {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            display: flex;
-            flex-direction: row; /* Side by side */
-            gap: 20px;
-            z-index: 10000; /* Extremely high Z-index to force visibility */
+            position: fixed; bottom: 30px; right: 30px;
+            display: flex; flex-direction: row; gap: 20px; z-index: 10000;
         }
-
         .fab-btn {
-            width: 65px;
-            height: 65px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+            width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 24px; color: #fff; border: none; cursor: pointer; transition: 0.3s; box-shadow: 0 6px 20px rgba(0,0,0,0.5);
         }
-
-        /* Orange Folder Button */
-        .btn-folder {
-            background: var(--folder-color);
-        }
-
-        /* Blue Add File Button */
-        .btn-add {
-            background: var(--accent);
-        }
-
+        .btn-folder { background: var(--folder-color); }
+        .btn-add { background: var(--accent); }
         .fab-btn:hover { transform: scale(1.1); box-shadow: 0 8px 25px rgba(0,0,0,0.7); }
-        .fab-btn:active { transform: scale(0.95); }
 
         #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; z-index: 99999; flex-direction: column; gap: 15px; backdrop-filter: blur(5px); }
     </style>
@@ -154,12 +122,8 @@
     </div>
 
     <div class="fab-container" id="fabContainer">
-        <button class="fab-btn btn-folder" onclick="createFolder()" title="New Folder">
-            <i class="fa-solid fa-folder-plus"></i>
-        </button>
-        <button class="fab-btn btn-add" onclick="triggerUpload()" title="Upload File">
-            <i class="fa-solid fa-plus"></i>
-        </button>
+        <button class="fab-btn btn-folder" onclick="createFolder()" title="New Folder"><i class="fa-solid fa-folder-plus"></i></button>
+        <button class="fab-btn btn-add" onclick="triggerUpload()" title="Upload File"><i class="fa-solid fa-plus"></i></button>
     </div>
 
     <div id="loader"><i class="fa-solid fa-circle-notch fa-spin fa-3x" style="color:var(--accent)"></i><span>Processing...</span></div>
@@ -169,57 +133,69 @@
 
     <script>
         // ==========================================
-        // PASTE YOUR KEYS HERE
+        // 1. SUPABASE CONFIGURATION
         // ==========================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyDG8bQcN_2Fx-J546tL6ISLoW-VQK0a6OE",
-            authDomain: "library-e2668.firebaseapp.com",
-            databaseURL: "https://library-e2668-default-rtdb.firebaseio.com",
-            projectId: "library-e2668",
-            storageBucket: "library-e2668.firebasestorage.app",
-            messagingSenderId: "621959209194",
-            appId: "1:621959209194:web:c637a9a8697da8ee363793",
-            measurementId: "G-GTZLQCWH15"
-        };
+        const SUPABASE_URL = 'https://loppfklgxwezjknpvoea.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_-LlJPYPevQgRqAj1LE7Abg_dOvzNB-g';
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const storage = firebase.storage();
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // State
         let currentFolder = 'root';
-        let libraryUnsubscribe = null;
 
+        // ==========================================
+        // 2. INITIALIZATION
+        // ==========================================
         function init() {
             loadLibrary();
+            subscribeRealtime();
             loadStream();
+            
             document.getElementById('chatInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendText(); });
             window.addEventListener('paste', handlePaste);
         }
 
-        function loadLibrary() {
-            if(libraryUnsubscribe) libraryUnsubscribe();
-            libraryUnsubscribe = db.collection("boxes")
-                .where("parentId", "==", currentFolder)
-                .orderBy("createdAt", "desc")
-                .onSnapshot(snapshot => {
-                    const grid = document.getElementById("gridContainer");
-                    if(!snapshot.metadata.hasPendingWrites) grid.innerHTML = "";
-                    if(snapshot.empty && currentFolder !== 'root') grid.innerHTML = `<div style="width:100%;text-align:center;opacity:0.5;grid-column:1/-1;padding-top:50px;">Folder is empty</div>`;
-                    snapshot.forEach(doc => {
-                        if(!document.getElementById('box-'+doc.id)) grid.appendChild(createBoxElement(doc.id, doc.data()));
-                    });
-                });
+        // ==========================================
+        // 3. LIBRARY LOGIC
+        // ==========================================
+        
+        // Load initial data
+        async function loadLibrary() {
+            const grid = document.getElementById("gridContainer");
+            grid.innerHTML = ""; // Clear grid
+
+            const { data, error } = await supabase
+                .from('boxes')
+                .select('*')
+                .eq('parent_id', currentFolder)
+                .order('created_at', { ascending: false });
+
+            if (data && data.length > 0) {
+                data.forEach(item => grid.appendChild(createBoxElement(item)));
+            } else if (currentFolder !== 'root') {
+                grid.innerHTML = `<div style="width:100%;text-align:center;opacity:0.5;grid-column:1/-1;padding-top:50px;">Folder is empty</div>`;
+            }
         }
 
-        function createBoxElement(id, data) {
+        // Realtime Listener
+        function subscribeRealtime() {
+            supabase.channel('boxes-channel')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'boxes' }, payload => {
+                    // Simple reload on any change for simplicity
+                    loadLibrary();
+                })
+                .subscribe();
+        }
+
+        function createBoxElement(data) {
             const div = document.createElement('div');
             div.className = `box glass ${data.type === 'folder' ? 'folder' : ''}`;
-            div.id = 'box-' + id;
+            div.id = 'box-' + data.id;
             div.draggable = true;
 
-            div.ondragstart = (e) => { e.dataTransfer.setData("text/plain", id); };
+            div.ondragstart = (e) => { e.dataTransfer.setData("text/plain", data.id); };
             div.ondragover = (e) => { e.preventDefault(); };
-            div.ondrop = (e) => handleDropOnBox(e, id, data.type);
+            div.ondrop = (e) => handleDropOnBox(e, data.id, data.type);
 
             let icon = '';
             if(data.type === 'image') icon = `<img src="${data.url}">`;
@@ -229,9 +205,9 @@
 
             div.innerHTML = `
                 <div class="box-actions">
-                    <button class="action-btn" onclick="renameBox('${id}', '${data.name}')"><i class="fa-solid fa-pen"></i></button>
+                    <button class="action-btn" onclick="renameBox('${data.id}', '${data.name}')"><i class="fa-solid fa-pen"></i></button>
                     ${data.type !== 'folder' ? `<button class="action-btn" onclick="downloadFile('${data.url}', '${data.name}')"><i class="fa-solid fa-download"></i></button>` : ''}
-                    <button class="action-btn delete" onclick="deleteBox('${id}', '${data.refPath || ''}', '${data.type}')"><i class="fa-solid fa-xmark"></i></button>
+                    <button class="action-btn delete" onclick="deleteBox('${data.id}', '${data.name}', '${data.type}')"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 ${icon}
                 <div class="box-title">${data.name}</div>
@@ -239,58 +215,63 @@
 
             div.onclick = (e) => {
                 if(e.target.closest('.box-actions')) return;
-                if(data.type === 'folder') navigateTo(id, data.name);
+                if(data.type === 'folder') navigateTo(data.id, data.name);
                 else if(data.type === 'image') window.open(data.url, '_blank');
             };
             return div;
         }
 
         function navigateTo(folderId, folderName) {
-            currentFolder = folderId;
+            currentFolder = folderId.toString(); // Ensure string comparison
             document.getElementById('folderNameDisplay').innerText = folderId === 'root' ? " / Home" : ` / ${folderName}`;
             loadLibrary();
         }
 
-        function createFolder() {
+        async function createFolder() {
             const name = prompt("Folder Name:", "New Folder");
             if(!name) return;
-            db.collection("boxes").add({
-                parentId: currentFolder,
-                name: name,
-                type: 'folder',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            await supabase.from('boxes').insert({
+                name: name, type: 'folder', parent_id: currentFolder
             });
         }
 
-        function renameBox(id, oldName) {
+        async function renameBox(id, oldName) {
             const newName = prompt("Rename:", oldName);
-            if(newName && newName !== oldName) db.collection("boxes").doc(id).update({ name: newName });
-        }
-
-        function downloadFile(url, filename) {
-            fetch(url).then(t => t.blob()).then(b => {
-                const a = document.createElement("a");
-                a.href = URL.createObjectURL(b);
-                a.setAttribute("download", filename);
-                a.click();
-            });
-        }
-
-        function deleteBox(id, refPath, type) {
-            if(!confirm("Delete?")) return;
-            if(refPath) storage.ref(refPath).delete().catch(console.error);
-            db.collection("boxes").doc(id).delete();
-        }
-
-        function handleDropOnBox(e, targetId, targetType) {
-            e.preventDefault(); e.stopPropagation();
-            const draggedId = e.dataTransfer.getData("text/plain");
-            if(targetType === 'folder' && draggedId) {
-                db.collection("boxes").doc(draggedId).update({ parentId: targetId });
-                document.getElementById('box-'+draggedId).remove();
+            if(newName && newName !== oldName) {
+                await supabase.from('boxes').update({ name: newName }).eq('id', id);
             }
         }
 
+        function downloadFile(url, filename) {
+            const a = document.createElement("a");
+            a.href = url;
+            a.setAttribute("download", filename);
+            a.target = "_blank";
+            a.click();
+        }
+
+        async function deleteBox(id, fileName, type) {
+            if(!confirm("Delete?")) return;
+            if(type !== 'folder') {
+                // Attempt to delete file from storage (best effort)
+                const path = fileName.split('/').pop(); // rough path logic
+                // Note: Exact path matching in Supabase storage requires storing the full path. 
+                // For this simple version, we just delete the DB entry.
+            }
+            await supabase.from('boxes').delete().eq('id', id);
+        }
+
+        async function handleDropOnBox(e, targetId, targetType) {
+            e.preventDefault(); e.stopPropagation();
+            const draggedId = e.dataTransfer.getData("text/plain");
+            if(targetType === 'folder' && draggedId) {
+                await supabase.from('boxes').update({ parent_id: targetId }).eq('id', draggedId);
+            }
+        }
+
+        // ==========================================
+        // 4. UPLOAD LOGIC
+        // ==========================================
         document.getElementById('library').ondragover = (e) => e.preventDefault();
         document.getElementById('library').ondrop = (e) => {
             e.preventDefault();
@@ -301,63 +282,94 @@
         document.getElementById('fileInput').onchange = (e) => { if(e.target.files[0]) uploadFile(e.target.files[0], 'library'); };
         document.getElementById('syncInputFile').onchange = (e) => { if(e.target.files[0]) uploadFile(e.target.files[0], 'sync'); };
 
-        function uploadFile(file, context) {
+        async function uploadFile(file, context) {
             document.getElementById('loader').style.display = 'flex';
-            const refPath = `uploads/${Date.now()}_${file.name}`;
-            const storageRef = storage.ref(refPath);
             
+            const fileName = `${Date.now()}_${file.name}`;
+            const { data, error } = await supabase.storage.from('files').upload(fileName, file);
+
+            if(error) {
+                console.error(error);
+                alert("Upload failed: " + error.message);
+                document.getElementById('loader').style.display = 'none';
+                return;
+            }
+
+            // Get Public URL
+            const { data: { publicUrl } } = supabase.storage.from('files').getPublicUrl(fileName);
+
             let type = 'file';
             if (file.type.startsWith('image/')) type = 'image';
             if (file.type.startsWith('audio/')) type = 'audio';
 
-            storageRef.put(file).then(snapshot => snapshot.ref.getDownloadURL()).then(url => {
-                if(context === 'library') {
-                    db.collection("boxes").add({
-                        parentId: currentFolder, name: file.name, type: type, url: url, refPath: refPath,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                } else {
-                    db.collection("stream").add({
-                        type: type, content: url, fileName: file.name, timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-                document.getElementById('loader').style.display = 'none';
-            }).catch(err => { console.error(err); document.getElementById('loader').style.display = 'none'; });
-        }
-
-        function loadStream() {
-            db.collection("stream").orderBy("timestamp", "asc").limitToLast(50).onSnapshot(snapshot => {
-                const feed = document.getElementById("streamFeed");
-                snapshot.docChanges().forEach(change => {
-                    if(change.type === 'added') {
-                        const data = change.doc.data();
-                        const msgDiv = document.createElement('div');
-                        if(data.type === 'text') {
-                            msgDiv.className = 'msg text glass';
-                            msgDiv.innerHTML = `${data.content} <div class="timestamp">${new Date(data.timestamp?.toDate()).toLocaleTimeString()}</div>`;
-                        } else if (data.type === 'image') {
-                            msgDiv.className = 'msg image';
-                            msgDiv.innerHTML = `<img src="${data.content}">`;
-                        } else {
-                            msgDiv.className = 'msg text glass';
-                            msgDiv.innerHTML = `<i class="fa-solid fa-file"></i> <a href="${data.content}" target="_blank" style="color:var(--accent)">${data.fileName}</a>`;
-                        }
-                        feed.appendChild(msgDiv);
-                        feed.scrollTop = feed.scrollHeight;
-                    }
+            if(context === 'library') {
+                await supabase.from('boxes').insert({
+                    name: file.name,
+                    type: type,
+                    url: publicUrl,
+                    parent_id: currentFolder
                 });
-            });
+            } else {
+                await supabase.from('stream').insert({
+                    type: type,
+                    content: publicUrl,
+                    file_name: file.name
+                });
+            }
+            document.getElementById('loader').style.display = 'none';
         }
 
-        function sendText() {
+        // ==========================================
+        // 5. SYNC STREAM LOGIC
+        // ==========================================
+        function loadStream() {
+            const feed = document.getElementById("streamFeed");
+            
+            // Initial Load
+            supabase.from('stream').select('*').order('created_at', { ascending: true }).limit(50)
+                .then(({ data }) => {
+                    if(data) data.forEach(msg => appendMessage(msg));
+                });
+
+            // Realtime Listener
+            supabase.channel('stream-channel')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stream' }, payload => {
+                    appendMessage(payload.new);
+                })
+                .subscribe();
+        }
+
+        function appendMessage(data) {
+            const feed = document.getElementById("streamFeed");
+            const msgDiv = document.createElement('div');
+            const time = new Date(data.created_at).toLocaleTimeString();
+
+            if(data.type === 'text') {
+                msgDiv.className = 'msg text glass';
+                msgDiv.innerHTML = `${data.content} <div class="timestamp">${time}</div>`;
+            } else if (data.type === 'image') {
+                msgDiv.className = 'msg image';
+                msgDiv.innerHTML = `<img src="${data.content}">`;
+            } else {
+                msgDiv.className = 'msg text glass';
+                msgDiv.innerHTML = `<i class="fa-solid fa-file"></i> <a href="${data.content}" target="_blank" style="color:var(--accent)">${data.file_name}</a>`;
+            }
+            feed.appendChild(msgDiv);
+            feed.scrollTop = feed.scrollHeight;
+        }
+
+        async function sendText() {
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
             if(text) {
-                db.collection("stream").add({ type: 'text', content: text, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                await supabase.from('stream').insert({ type: 'text', content: text });
                 input.value = "";
             }
         }
 
+        // ==========================================
+        // 6. UTILS
+        // ==========================================
         function switchTab(tab) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
