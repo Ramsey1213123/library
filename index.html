@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glass Cloud OS 4.2</title>
+    <title>Glass Cloud OS 4.3</title>
     
     <!-- Icons & Fonts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
@@ -804,12 +804,16 @@
             const displayName = meta.title || file.name;
 
             if(context === 'library') {
-                await supabase.from('boxes').insert({ 
+                const { error: dbError } = await supabase.from('boxes').insert({ 
                     name: displayName, type: type, url: publicUrl, 
                     cover_url: meta.cover, track_number: meta.track,
                     artist: meta.artist, // Insert Artist
                     parent_id: specificParentId || currentFolder 
                 });
+                if(dbError) {
+                    console.error(dbError);
+                    showToast("Database Error: " + dbError.message, "error");
+                }
             } else {
                 await supabase.from('stream').insert({ type: type, content: publicUrl, file_name: file.name });
             }
