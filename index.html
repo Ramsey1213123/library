@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glass Cloud OS 3.4</title>
+    <title>Glass Cloud OS 3.5 (Speed Optimized)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -44,7 +45,7 @@
         }
         .nav button.active { background: rgba(255,255,255,0.1); color: var(--accent); box-shadow: 0 0 15px rgba(0,210,255,0.2); }
 
-        /* SIMPLIFIED SEARCH INPUT (No Icon, No Wrapper) */
+        /* SIMPLIFIED SEARCH INPUT */
         #searchInput {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -119,7 +120,6 @@
         .stream-feed { 
             flex: 1; overflow-y: auto; display: flex; flex-direction: column; 
             gap: 20px; padding: 15px; 
-            /* Increased padding bottom to prevent overlap with input area */
             padding-bottom: 180px; 
         }
         
@@ -595,7 +595,7 @@
             const a = document.createElement("a"); a.href = url; a.setAttribute("download", filename); a.target = "_blank"; a.click();
         }
 
-        // --- UPLOAD LOGIC ---
+        // --- UPLOAD LOGIC (PARALLEL) ---
         document.getElementById('library').ondragover = (e) => e.preventDefault();
         document.getElementById('library').ondrop = async (e) => {
             e.preventDefault();
@@ -650,28 +650,35 @@
             fill.style.width='20%';
 
             const fileName = `${Date.now()}_${file.name}`;
-            const { error } = await supabase.storage.from('files').upload(fileName, file);
-            if(error) { showToast(`Error: ${file.name}`, "error"); return; }
+            
+            // --- PARALLEL EXECUTION START ---
+            // 1. Start Upload
+            const uploadPromise = supabase.storage.from('files').upload(fileName, file);
+            
+            // 2. Start Metadata Extraction (if audio)
+            let metaPromise = Promise.resolve({cover: null, track: 0});
+            let type = file.type.startsWith('image/') ? 'image' : (file.type.startsWith('audio/') ? 'audio' : 'file');
+            
+            if(type === 'audio' && context === 'library') {
+                // Safety timeout for metadata: 2 seconds max
+                const metaTask = extractAudioMeta(file);
+                const timeoutTask = new Promise(r => setTimeout(() => r({cover:null, track:0}), 2000));
+                metaPromise = Promise.race([metaTask, timeoutTask]);
+            }
+
+            // Wait for both
+            const [uploadResult, metaResult] = await Promise.all([uploadPromise, metaPromise]);
+            
+            if(uploadResult.error) { showToast(`Error: ${file.name}`, "error"); return; }
+            // --- PARALLEL EXECUTION END ---
             
             fill.style.width='60%';
             const { data: { publicUrl } } = supabase.storage.from('files').getPublicUrl(fileName);
             
-            let type = file.type.startsWith('image/') ? 'image' : (file.type.startsWith('audio/') ? 'audio' : 'file');
-            let coverUrl = null;
-            let trackNum = 0;
-
-            if(type === 'audio' && context === 'library') {
-                try { 
-                    const meta = await extractAudioMeta(file); 
-                    coverUrl = meta.cover;
-                    trackNum = meta.track;
-                } catch(e) {}
-            }
-
             if(context === 'library') {
                 await supabase.from('boxes').insert({ 
                     name: file.name, type: type, url: publicUrl, 
-                    cover_url: coverUrl, track_number: trackNum,
+                    cover_url: metaResult.cover, track_number: metaResult.track,
                     parent_id: specificParentId || currentFolder 
                 });
             } else {
@@ -686,7 +693,6 @@
                     onSuccess: async (tag) => {
                         let cover = null;
                         let track = 0;
-                        
                         const picture = tag.tags.picture;
                         if (picture) {
                             let base64String = "";
@@ -699,11 +705,7 @@
                             const { data: { publicUrl } } = supabase.storage.from('files').getPublicUrl(artName);
                             cover = publicUrl;
                         }
-
-                        if(tag.tags.track) {
-                            track = parseInt(tag.tags.track.split('/')[0]) || 0;
-                        }
-
+                        if(tag.tags.track) track = parseInt(tag.tags.track.split('/')[0]) || 0;
                         resolve({cover, track});
                     }, onError: () => resolve({cover:null, track:0})
                 });
