@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glass Cloud OS 5.1</title>
+    <title>Library</title>
     
+    <!-- Favicon: Clean Book Icon in Accent Color -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364ffda' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 19.5A2.5 2.5 0 0 1 6.5 17H20' /><path d='M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z' /></svg>">
+
     <!-- Icons & Fonts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -382,9 +385,6 @@
             background: var(--accent); 
             cursor: pointer; 
             box-shadow: 0 0 10px var(--accent);
-            /* (12px thumb - 4px track) / 2 = 4px offset needed? No, usually just margin-top -4px relative to top */
-            /* Actually, standard webkit thumb centers itself if height matches or via flex. 
-               Let's try specific negative margin if track is 4px */
             margin-top: -4px; 
         }
         
