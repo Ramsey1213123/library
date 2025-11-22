@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glass Cloud OS 4.5</title>
+    <title>Glass Cloud OS 5.1</title>
     
     <!-- Icons & Fonts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -26,6 +26,9 @@
             --text-muted: #8b949e;
             --danger: #ff7b72;
             --blur-strength: 20px;
+            --bg-gradient: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                           radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                           radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
         }
 
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
@@ -34,10 +37,7 @@
             margin: 0; font-family: 'Inter', sans-serif; color: var(--text);
             height: 100vh; display: flex; flex-direction: column; overflow: hidden;
             background-color: #0f172a;
-            background-image: 
-                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
-                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            background-image: var(--bg-gradient);
             background-size: 200% 200%;
             animation: meshFlow 20s ease infinite;
         }
@@ -70,7 +70,10 @@
         .nav-pill button {
             background: none; border: none; color: var(--text-muted); font-weight: 500;
             cursor: pointer; padding: 8px 20px; border-radius: 40px; transition: 0.3s; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 8px;
         }
+        
+        .nav-pill button:hover { color: white; }
         
         .nav-pill button.active { 
             background: rgba(255,255,255,0.1); color: white; 
@@ -111,14 +114,16 @@
             border-radius: 24px; height: 160px; position: relative; display: flex; flex-direction: column;
             align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             overflow: hidden; text-align: center; border: 1px solid transparent;
+            background-size: cover; background-position: center;
         }
-        .box:hover { transform: translateY(-5px) scale(1.02); background: rgba(255,255,255,0.1); border-color: var(--glass-highlight); }
-        .box.selected { border: 2px solid var(--accent); background: rgba(100, 255, 218, 0.1); }
+        .box.has-cover .box-icon { display: none; }
+        .box.has-cover::before {
+            content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.2)); z-index: 0;
+        }
+        .box:hover { transform: translateY(-5px) scale(1.02); background-color: rgba(255,255,255,0.1); border-color: var(--glass-highlight); }
+        .box.selected { border: 2px solid var(--accent); background-color: rgba(100, 255, 218, 0.1); }
 
-        .box img { width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; z-index: -1; opacity: 0.6; transition: 0.4s;}
-        .box:hover img { opacity: 0.4; transform: scale(1.1); }
-        
-        .box-icon { font-size: 3.5rem; margin-bottom: 10px; transition: 0.3s; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3)); }
+        .box-icon { font-size: 3.5rem; margin-bottom: 10px; transition: 0.3s; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3)); position: relative; z-index: 1; }
         .box.folder .box-icon { color: #fbbf24; }
         .box.audio .box-icon { color: var(--accent); }
         
@@ -126,8 +131,9 @@
             position: absolute; bottom: 0; left: 0; width: 100%;
             font-size: 0.8rem; font-weight: 500;
             padding: 8px 10px; 
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            z-index: 2;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
         .box-actions { 
@@ -143,22 +149,67 @@
         .action-btn:hover { background: white; color: black; transform: scale(1.1); }
         .action-btn.delete:hover { background: var(--danger); color: white; }
 
-        /* --- ALBUM VIEW --- */
-        .album-header { 
+        /* --- LINK BOARD --- */
+        .link-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding-bottom: 150px;
+        }
+        .link-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .link-card:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--glass-highlight);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .link-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            background: rgba(0,0,0,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; flex-shrink: 0;
+            overflow: hidden;
+        }
+        .link-icon img { width: 100%; height: 100%; object-fit: cover; }
+        .link-info { flex: 1; overflow: hidden; }
+        .link-title { font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .link-url { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .link-delete { 
+            position: absolute; top: 10px; right: 10px; 
+            color: var(--text-muted); opacity: 0; transition: 0.2s;
+            padding: 5px; cursor: pointer;
+        }
+        .link-card:hover .link-delete { opacity: 1; }
+        .link-delete:hover { color: var(--danger); }
+
+        /* --- HEADERS (Album & Folder) --- */
+        .header-glass { 
             display: flex; align-items: flex-end; gap: 30px; margin-bottom: 40px; 
             padding: 40px; background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%); 
             border-radius: 30px; border: 1px solid var(--glass-border);
         }
-        .album-art { 
-            width: 200px; height: 200px; border-radius: 20px; 
+        .header-art { 
+            width: 160px; height: 160px; border-radius: 20px; 
             box-shadow: 0 20px 50px rgba(0,0,0,0.4); object-fit: cover; 
             background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;
-            font-size: 60px; color: rgba(255,255,255,0.1); position: relative; overflow: hidden;
+            font-size: 50px; color: rgba(255,255,255,0.1); position: relative; overflow: hidden;
         }
-        .album-info h1 { margin: 0 0 10px 0; font-size: 3rem; letter-spacing: -1px; line-height: 1; }
-        .album-meta { color: var(--text-muted); margin-bottom: 20px; font-size: 1.1rem; }
+        .header-info h1 { margin: 0 0 10px 0; font-size: 2.5rem; letter-spacing: -1px; line-height: 1; }
+        .header-meta { color: var(--text-muted); margin-bottom: 20px; font-size: 1.1rem; }
         
-        .album-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+        .header-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .pill-btn { 
             background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border); 
             color: white; padding: 8px 20px; border-radius: 50px; cursor: pointer; 
@@ -181,31 +232,57 @@
         .track-actions { opacity: 0; display: flex; gap: 10px; transition: 0.2s; }
         .track-item:hover .track-actions { opacity: 1; }
 
-        /* --- STREAM --- */
-        .stream-feed { display: flex; flex-direction: column; gap: 25px; padding-bottom: 150px; max-width: 800px; margin: 0 auto; }
-        .msg-row { display: flex; align-items: flex-end; gap: 15px; width: 100%; }
-        .msg-content { 
-            background: rgba(255, 255, 255, 0.08); 
+        /* --- NEW STREAM UI --- */
+        .chat-container {
+            display: flex; flex-direction: column; gap: 20px; padding-bottom: 150px; max-width: 900px; margin: 0 auto;
+        }
+        .date-separator {
+            display: flex; align-items: center; justify-content: center; margin: 20px 0; opacity: 0.5; font-size: 0.8rem;
+        }
+        .date-separator::before, .date-separator::after {
+            content: ''; height: 1px; background: rgba(255,255,255,0.2); width: 100px; margin: 0 15px;
+        }
+        
+        .chat-msg {
+            display: flex; gap: 15px; align-items: flex-end;
+            animation: fadeSlideUp 0.3s ease;
+        }
+        @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .chat-avatar {
+            width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); flex-shrink: 0;
+        }
+        
+        .chat-bubble {
+            background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            padding: 12px 20px; 
-            border-radius: 20px; 
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 18px;
             border-bottom-left-radius: 4px;
-            max-width: 85%;
+            padding: 12px 18px;
+            color: var(--text);
             position: relative;
-            word-wrap: break-word;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 80%;
+            line-height: 1.5;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .msg-content.image-msg { background: transparent; padding: 0; border: none; box-shadow: none; }
-        .msg-content img { max-width: 100%; border-radius: 20px; cursor: pointer; border: 1px solid var(--glass-border); }
-        .msg-content.audio-msg { 
-            background: linear-gradient(135deg, rgba(100, 255, 218, 0.1), rgba(100, 255, 218, 0.02));
-            border-color: rgba(100, 255, 218, 0.3);
-            display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.2s;
+        
+        .chat-bubble.media { padding: 5px; background: transparent; border: none; box-shadow: none; }
+        .chat-bubble img { border-radius: 15px; max-width: 300px; width: 100%; cursor: pointer; border: 1px solid var(--glass-border); transition: 0.3s; }
+        .chat-bubble img:hover { transform: scale(1.02); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+
+        .chat-bubble.audio-card {
+            background: linear-gradient(135deg, rgba(100, 255, 218, 0.15), rgba(100, 255, 218, 0.05));
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            display: flex; align-items: center; gap: 15px; padding: 15px 20px; min-width: 250px;
+            cursor: pointer; transition: 0.2s;
         }
-        .msg-content.audio-msg:hover { transform: scale(1.02); border-color: var(--accent); }
-        .msg-content.audio-msg i { color: var(--accent); font-size: 1.2rem; }
-        .msg-time { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; padding-bottom: 5px; }
+        .chat-bubble.audio-card:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(100, 255, 218, 0.2); }
+        .play-circle { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); display:flex; align-items:center; justify-content:center; color: #000; font-size: 1.2rem; }
+
+        .chat-meta { font-size: 0.7rem; color: var(--text-muted); margin-top: 5px; text-align: right; }
 
         .input-bar { 
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
@@ -245,7 +322,7 @@
         .fab-btn.btn-main { background: var(--accent); color: #000; border: none; }
         .fab-btn.btn-main:hover { background: #fff; }
 
-        /* --- Audio Player --- */
+        /* --- MINI PLAYER (Bottom Bar) --- */
         #audioPlayer { 
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(150%); 
             width: 95%; max-width: 650px; height: 100px; 
@@ -257,7 +334,9 @@
             padding: 0 25px; z-index: 200; 
             box-shadow: 0 15px 50px rgba(0,0,0,0.6);
             transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
         }
+        #audioPlayer:hover { border-color: var(--accent); }
         #audioPlayer.visible { transform: translateX(-50%) translateY(0); }
         
         .player-art { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
@@ -277,8 +356,8 @@
         .player-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.95rem; }
         .player-artist { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
         
-        /* PROGRESS BAR FIXED */
-        .progress-area { width: 100%; display:flex; align-items:center; }
+        /* PROGRESS BAR (Used in both players) */
+        .progress-area { width: 100%; display:flex; align-items:center; height: 10px; }
         
         .progress-bar {
             -webkit-appearance: none;
@@ -290,8 +369,10 @@
             outline: none; 
             cursor: pointer;
             margin: 0;
+            position: relative;
         }
         
+        /* CENTERED KNOB FIX */
         .progress-bar::-webkit-slider-thumb {
             -webkit-appearance: none; 
             appearance: none; 
@@ -301,17 +382,16 @@
             background: var(--accent); 
             cursor: pointer; 
             box-shadow: 0 0 10px var(--accent);
+            /* (12px thumb - 4px track) / 2 = 4px offset needed? No, usually just margin-top -4px relative to top */
+            /* Actually, standard webkit thumb centers itself if height matches or via flex. 
+               Let's try specific negative margin if track is 4px */
             margin-top: -4px; 
         }
         
+        /* Firefox */
         .progress-bar::-moz-range-thumb {
-            width: 12px; 
-            height: 12px; 
-            border: none;
-            border-radius: 50%; 
-            background: var(--accent); 
-            cursor: pointer; 
-            box-shadow: 0 0 10px var(--accent);
+            width: 12px; height: 12px; border: none; border-radius: 50%; 
+            background: var(--accent); cursor: pointer; 
         }
 
         .player-controls { display: flex; gap: 15px; align-items: center; margin: 0 15px; }
@@ -319,6 +399,43 @@
         .ctrl-btn:hover { opacity: 1; color: var(--accent); }
         
         audio { display: none; } 
+
+        /* --- IMMERSIVE BIG PLAYER --- */
+        #fullScreenPlayer {
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(10, 15, 30, 0.6);
+            backdrop-filter: blur(50px);
+            -webkit-backdrop-filter: blur(50px);
+            display: none; flex-direction: column;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        #fullScreenPlayer.open { display: flex; opacity: 1; animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        .fp-header { display: flex; justify-content: space-between; padding: 30px; }
+        .fp-close-btn { background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
+        .fp-close-btn:hover { background: rgba(255,255,255,0.2); transform: rotate(90deg); }
+
+        .fp-content { flex: 1; display: flex; align-items: center; justify-content: center; gap: 50px; padding: 0 50px 50px 50px; }
+        .fp-art-container { width: 45vh; height: 45vh; box-shadow: 0 30px 80px rgba(0,0,0,0.5); border-radius: 30px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); position: relative; }
+        .fp-art { width: 100%; height: 100%; object-fit: cover; }
+        
+        .fp-details { width: 400px; display: flex; flex-direction: column; gap: 20px; }
+        .fp-title { font-size: 2.5rem; font-weight: 700; line-height: 1.1; }
+        .fp-artist { font-size: 1.3rem; color: var(--accent); }
+        
+        .fp-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+        .fp-btn { background: none; border: none; color: white; font-size: 1.8rem; cursor: pointer; opacity: 0.8; transition: 0.2s; }
+        .fp-btn:hover { opacity: 1; transform: scale(1.1); }
+        .fp-btn.main { font-size: 3.5rem; color: var(--accent); }
+
+        .fp-queue-container {
+            background: rgba(0,0,0,0.2); border-radius: 20px; padding: 20px;
+            max-height: 300px; overflow-y: auto; margin-top: 20px; border: 1px solid var(--glass-border);
+        }
+        .fp-queue-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; font-size: 0.9rem; color: var(--text-muted); }
+        .fp-queue-item:hover { color: white; background: rgba(255,255,255,0.05); }
+        .fp-queue-item.active { color: var(--accent); font-weight: 600; }
 
         /* --- Breadcrumbs --- */
         .breadcrumbs { 
@@ -340,11 +457,17 @@
         .toast i { color: var(--accent); }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
+        @media (max-width: 900px) {
+            .fp-content { flex-direction: column; padding: 20px; text-align: center; gap: 20px; }
+            .fp-art-container { width: 250px; height: 250px; }
+            .fp-details { width: 100%; }
+            .fp-title { font-size: 1.8rem; }
+        }
         @media (max-width: 700px) {
             .nav-container { flex-direction: column; gap: 15px; }
             #searchInput { width: 100%; }
-            .album-header { flex-direction: column; align-items: center; text-align: center; }
-            .album-btns { justify-content: center; }
+            .header-glass { flex-direction: column; align-items: center; text-align: center; }
+            .header-btns { justify-content: center; }
             #audioPlayer { width: 92%; height: auto; flex-wrap: wrap; justify-content: center; padding: 20px; bottom: 20px; border-radius: 30px; flex-direction: column; gap: 15px;}
             .player-info { text-align: center; width: 100%; margin: 0; }
             .player-controls { margin-top: 5px; }
@@ -356,9 +479,10 @@
     <div class="nav-container">
         <div class="nav-pill">
             <button onclick="switchTab('library')" class="active" id="tab-library"><i class="fa-solid fa-layer-group"></i> Library</button>
-            <button onclick="switchTab('sync')" id="tab-sync"><i class="fa-solid fa-bolt"></i> Stream</button>
+            <button onclick="switchTab('links')" id="tab-links"><i class="fa-solid fa-link"></i> Board</button>
+            <button onclick="switchTab('sync')" id="tab-sync"><i class="fa-regular fa-comments"></i> Chat</button>
         </div>
-        <input type="text" id="searchInput" placeholder="Search entire library..." onkeyup="filterLibrary()">
+        <input type="text" id="searchInput" placeholder="Search..." onkeyup="filterLibrary()">
     </div>
 
     <!-- LIBRARY VIEW -->
@@ -367,17 +491,30 @@
         <div id="libraryContent"></div>
     </div>
 
+    <!-- LINK BOARD VIEW -->
+    <div id="links" class="view">
+        <div class="header-glass" style="padding: 30px; align-items: center; margin-bottom: 30px;">
+            <div style="font-size: 40px; color: var(--accent);"><i class="fa-solid fa-globe"></i></div>
+            <div style="flex:1;">
+                <h1 style="font-size: 2rem; margin:0;">Link Board</h1>
+                <div style="color: var(--text-muted);">A collection of useful resources</div>
+            </div>
+            <button class="pill-btn primary" onclick="addLink()"><i class="fa-solid fa-plus"></i> Add Link</button>
+        </div>
+        <div id="linkContent" class="link-grid"></div>
+    </div>
+
     <!-- STREAM VIEW -->
     <div id="sync" class="view">
-        <div class="stream-feed" id="streamFeed"></div>
+        <div class="chat-container" id="streamFeed"></div>
         <div class="input-bar glass" id="inputArea">
             <button class="icon-btn" onclick="document.getElementById('syncInputFile').click()"><i class="fa-solid fa-paperclip"></i></button>
-            <input type="text" id="chatInput" placeholder="Type a note or drop a file...">
+            <input type="text" id="chatInput" placeholder="Type a message...">
             <button class="icon-btn" onclick="sendText()"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
     </div>
 
-    <!-- FABs -->
+    <!-- FABs (Library Context) -->
     <div class="fab-container" id="fabContainer">
         <button class="fab-btn btn-main" onclick="triggerUpload()" title="Upload File"><i class="fa-solid fa-plus"></i></button>
         <button class="fab-btn" onclick="createFolder()" title="New Folder"><i class="fa-solid fa-folder-plus"></i></button>
@@ -385,8 +522,8 @@
         <button class="fab-btn" id="btnGroup" onclick="groupSelectedIntoAlbum()" style="display:none" title="Group to Album"><i class="fa-solid fa-compact-disc"></i></button>
     </div>
 
-    <!-- AUDIO PLAYER -->
-    <div id="audioPlayer">
+    <!-- MINI AUDIO PLAYER -->
+    <div id="audioPlayer" onclick="expandPlayer(event)">
         <div style="display:flex; align-items:center; flex:1; overflow:hidden; width: 100%;">
             <img src="" id="playerArt" class="player-art" style="display:none">
             <div class="player-info">
@@ -394,21 +531,58 @@
                     <div class="player-title" id="playerTrackName">Select a song</div>
                     <div class="player-artist" id="playerArtist"></div>
                 </div>
-                <div class="progress-area">
+                <div class="progress-area" onclick="event.stopPropagation()">
                     <input type="range" id="progressBar" class="progress-bar" value="0" min="0" max="100" step="0.1">
                 </div>
             </div>
         </div>
         
-        <div class="player-controls">
+        <div class="player-controls" onclick="event.stopPropagation()">
             <button class="ctrl-btn" onclick="playPrev()" title="Previous"><i class="fa-solid fa-backward-step"></i></button>
             <button class="ctrl-btn" onclick="togglePlayPause()" id="btnPlayPause" title="Play/Pause" style="font-size:1.5rem; color:white;"><i class="fa-solid fa-play"></i></button>
             <button class="ctrl-btn" onclick="playNext()" title="Next"><i class="fa-solid fa-forward-step"></i></button>
-            <button class="ctrl-btn" onclick="shuffleQueue()" title="Shuffle" id="btnShuffle"><i class="fa-solid fa-shuffle"></i></button>
         </div>
-
-        <button onclick="closePlayer()" style="background:none; border:none; color:rgba(255,255,255,0.3); font-size:1.2rem; cursor:pointer; margin-left: 15px;"><i class="fa-solid fa-xmark"></i></button>
+        <button onclick="event.stopPropagation(); closePlayer()" style="background:none; border:none; color:rgba(255,255,255,0.3); font-size:1.2rem; cursor:pointer; margin-left: 15px;"><i class="fa-solid fa-xmark"></i></button>
         <audio id="globalAudio"></audio>
+    </div>
+
+    <!-- IMMERSIVE BIG PLAYER OVERLAY -->
+    <div id="fullScreenPlayer">
+        <div class="fp-header">
+            <div style="opacity:0.5;">Now Playing</div>
+            <button class="fp-close-btn" onclick="collapsePlayer()"><i class="fa-solid fa-chevron-down"></i></button>
+        </div>
+        <div class="fp-content">
+            <div class="fp-art-container">
+                <img src="" id="fpArt" class="fp-art">
+            </div>
+            <div class="fp-details">
+                <div>
+                    <div class="fp-title" id="fpTitle">Song Title</div>
+                    <div class="fp-artist" id="fpArtist">Artist Name</div>
+                </div>
+                
+                <div class="progress-area">
+                    <input type="range" id="fpProgressBar" class="progress-bar" value="0" min="0" max="100" step="0.1">
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted); margin-top:5px;">
+                    <span id="currTime">0:00</span>
+                    <span id="totalTime">0:00</span>
+                </div>
+
+                <div class="fp-controls">
+                    <button class="fp-btn" onclick="startQueue(true)"><i class="fa-solid fa-shuffle"></i></button>
+                    <button class="fp-btn" onclick="playPrev()"><i class="fa-solid fa-backward-step"></i></button>
+                    <button class="fp-btn main" onclick="togglePlayPause()" id="fpPlayBtn"><i class="fa-solid fa-circle-play"></i></button>
+                    <button class="fp-btn" onclick="playNext()"><i class="fa-solid fa-forward-step"></i></button>
+                    <button class="fp-btn" onclick="toggleRepeat()"><i class="fa-solid fa-repeat"></i></button>
+                </div>
+
+                <div class="fp-queue-container" id="fpQueue">
+                    <!-- Queue items go here -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- LOADER -->
@@ -442,16 +616,19 @@
         let libraryData = []; 
         let isLoading = false;
         let searchTimeout = null;
+        let lastMessageDate = null;
 
         // Player State
         let playQueue = [];
         let currentQueueIndex = 0;
         const audio = document.getElementById('globalAudio');
         const progressBar = document.getElementById('progressBar');
+        const fpProgressBar = document.getElementById('fpProgressBar');
 
         function init() {
             renderBreadcrumbs();
             loadLibrary();
+            loadLinks();
             loadStream();
             subscribeRealtime();
             document.getElementById('chatInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendText(); });
@@ -464,17 +641,14 @@
             audio.addEventListener('pause', updatePlayBtnState);
             audio.addEventListener('timeupdate', updateProgress);
             
-            // Add input listener to immediately update visual while dragging
-            progressBar.addEventListener('input', () => {
-                const val = progressBar.value;
-                progressBar.style.background = `linear-gradient(to right, var(--accent) ${val}%, rgba(255,255,255,0.1) ${val}%)`;
-                seekAudio();
-            });
+            // Sync progress bars
+            progressBar.addEventListener('input', handleSeek);
+            fpProgressBar.addEventListener('input', handleSeek);
         }
 
         /* --- NAVIGATION & BREADCRUMBS --- */
         function navigateTo(id, name) {
-            document.getElementById('searchInput').value = ''; // Clear search on nav
+            document.getElementById('searchInput').value = '';
             if(id !== currentFolder) {
                 const currentName = document.querySelector('.crumb-active') ? document.querySelector('.crumb-active').innerText : "Home";
                 navHistory.push({id: currentFolder, name: currentName});
@@ -530,85 +704,143 @@
             }
         }
 
-        /* --- SEARCH LOGIC --- */
+        /* --- LIBRARY LOGIC --- */
         async function filterLibrary() {
             const query = document.getElementById('searchInput').value.trim();
-            
-            // Clear existing timeout to debounce
             if(searchTimeout) clearTimeout(searchTimeout);
+            if(query.length === 0) { loadLibrary(); return; }
 
-            if(query.length === 0) {
-                loadLibrary(); // Restore normal view
-                return;
-            }
-
-            // Debounce search (wait 300ms after typing stops)
             searchTimeout = setTimeout(async () => {
                 const container = document.getElementById("libraryContent");
                 container.innerHTML = '<div style="text-align:center; opacity:0.5; padding:20px;">Searching...</div>';
                 
-                // GLOBAL SEARCH: Ignore parent_id
-                const { data, error } = await supabase
-                    .from('boxes')
-                    .select('*')
-                    .ilike('name', `%${query}%`)
-                    .limit(50);
+                const { data } = await supabase.from('boxes').select('*').ilike('name', `%${query}%`).neq('type', 'link').limit(50);
 
                 if(data) {
                     container.innerHTML = "";
-                    if(data.length === 0) {
-                        container.innerHTML = '<div style="text-align:center; opacity:0.5; padding:20px;">No results found</div>';
-                    } else {
-                        // Use Grid View for search results
-                        renderGridView(container, data);
-                    }
+                    if(data.length === 0) container.innerHTML = '<div style="text-align:center; opacity:0.5; padding:20px;">No results found</div>';
+                    else renderGridView(container, data);
                 }
             }, 300);
         }
 
-        /* --- LIBRARY LOGIC --- */
         async function loadLibrary() {
             if(isLoading) return; isLoading = true;
             const container = document.getElementById("libraryContent");
             
-            let isAlbum = false, albumCover = null, albumName = "Home";
+            let isAlbum = false, cover = null, folderName = "Home";
+            let folderType = 'root';
+
             if(currentFolder !== 'root') {
                 const { data: folderData } = await supabase.from('boxes').select('*').eq('id', currentFolder).single();
                 if(folderData) {
-                    isAlbum = folderData.subtype === 'album';
-                    albumName = folderData.name;
-                    albumCover = folderData.cover_url;
+                    folderType = folderData.subtype === 'album' ? 'album' : 'folder';
+                    isAlbum = folderType === 'album';
+                    folderName = folderData.name;
+                    cover = folderData.cover_url;
                 }
             }
 
-            const { data } = await supabase.from('boxes').select('*').eq('parent_id', currentFolder);
+            // Exclude links from file library
+            const { data } = await supabase.from('boxes').select('*').eq('parent_id', currentFolder).neq('type', 'link');
             isLoading = false;
             if (!data) return;
             libraryData = data; 
             container.innerHTML = ""; 
 
-            if(isAlbum) {
-                data.sort((a, b) => (parseInt(a.track_number) || 9999) - (parseInt(b.track_number) || 9999));
-                if(!albumCover && data.length > 0) {
-                    const firstSongWithCover = data.find(item => item.cover_url);
-                    if(firstSongWithCover) albumCover = firstSongWithCover.cover_url;
+            if(currentFolder !== 'root') {
+                document.querySelector('.crumb-active').innerText = folderName;
+                // Sort items
+                if(isAlbum) {
+                    data.sort((a, b) => (parseInt(a.track_number) || 9999) - (parseInt(b.track_number) || 9999));
+                    // Try to infer cover from tracks if folder doesn't have one
+                    if(!cover && data.length > 0) {
+                        const firstSongWithCover = data.find(item => item.cover_url);
+                        if(firstSongWithCover) cover = firstSongWithCover.cover_url;
+                    }
+                } else {
+                    data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                 }
-            } else {
-                data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-            }
 
-            if(currentFolder !== 'root') document.querySelector('.crumb-active').innerText = albumName;
-            isAlbum ? renderAlbumView(container, data, albumName, albumCover) : renderGridView(container, data);
+                // RENDER HEADER FOR BOTH FOLDERS AND ALBUMS
+                renderHeader(container, data, folderName, cover, isAlbum);
+                
+                if(isAlbum) renderTrackList(container, data);
+                else renderGridView(container, data);
+
+            } else {
+                // ROOT VIEW
+                data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                renderGridView(container, data);
+            }
+        }
+
+        function renderHeader(container, items, name, cover, isAlbum) {
+            const typeLabel = isAlbum ? "Album" : "Folder";
+            const icon = isAlbum ? '<i class="fa-solid fa-music"></i>' : '<i class="fa-solid fa-folder"></i>';
+            
+            container.innerHTML += `
+                <div class="header-glass">
+                    <div class="header-art">
+                        ${cover ? `<img src="${cover}" style="width:100%; height:100%; object-fit:cover;">` : icon}
+                    </div>
+                    <div class="header-info">
+                        <h1>${name}</h1>
+                        <div class="header-meta">${items.length} Items • ${typeLabel}</div>
+                        <div class="header-btns">
+                            ${isAlbum ? `
+                                <button class="pill-btn primary" onclick="startQueue()"><i class="fa-solid fa-play"></i> Play All</button>
+                                <button class="pill-btn" onclick="startQueue(true)"><i class="fa-solid fa-shuffle"></i> Shuffle</button>
+                            ` : ''}
+                            <button class="pill-btn" onclick="document.getElementById('coverInput').click()"><i class="fa-solid fa-image"></i> Set Cover</button>
+                            <button class="pill-btn" onclick="downloadFolderAsZip('${currentFolder}', '${name}')"><i class="fa-solid fa-file-zipper"></i> Zip</button>
+                            <button class="pill-btn" onclick="renameBox('${currentFolder}', '${name}')"><i class="fa-solid fa-pen"></i> Rename</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTrackList(container, items) {
+             const div = document.createElement('div');
+             div.className = 'tracklist';
+             div.innerHTML = items.map((item, i) => `
+                <div class="track-item" 
+                    id="track-${item.id}"
+                    draggable="true"
+                    ondragstart="handleTrackDragStart(event, ${item.id})"
+                    ondragover="event.preventDefault()" 
+                    ondrop="handleTrackDrop(event, ${item.id}, ${item.track_number}, ${i+1})"
+                    onclick="playSingleFromList('${item.id}')">
+                    
+                    <div class="track-num">${item.track_number || i+1}</div>
+                    <div class="track-title">
+                        <span>${item.name}</span>
+                        ${item.artist ? `<span class="track-artist">${item.artist}</span>` : ''}
+                    </div>
+                    <div class="track-actions">
+                        <i class="fa-solid fa-pen" onclick="event.stopPropagation(); renameBox('${item.id}', '${item.name}')"></i>
+                        <i class="fa-solid fa-download" onclick="event.stopPropagation(); downloadFile('${item.url}', '${item.name}')"></i>
+                        <i class="fa-solid fa-trash" style="color:var(--danger)" onclick="event.stopPropagation(); deleteBox('${item.id}')"></i>
+                    </div>
+                </div>
+            `).join('');
+            container.appendChild(div);
         }
 
         function renderGridView(container, items) {
             const grid = document.createElement('div');
             grid.className = 'grid';
-            if(items.length === 0) grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:50px; opacity:0.5;">Empty Folder</div>`;
+            if(items.length === 0) grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:50px; opacity:0.5;">Empty</div>`;
 
             items.forEach(item => {
                 const div = document.createElement('div');
                 div.className = `box glass ${item.type} ${item.subtype || ''}`;
+                if(item.cover_url) {
+                    div.style.backgroundImage = `url('${item.cover_url}')`;
+                    div.classList.add('has-cover');
+                }
+                
                 if(selectedItems.has(item.id)) div.classList.add('selected');
                 div.id = 'box-' + item.id;
                 
@@ -618,20 +850,27 @@
                 div.ondrop = (e) => handleDropOnBox(e, item.id, item.type, item.subtype);
 
                 let visual = '';
-                if(item.cover_url) visual = `<img src="${item.cover_url}">`; 
-                else if(item.type === 'image') visual = `<img src="${item.url}">`;
-                else {
-                    let icon = 'fa-file';
-                    if(item.subtype === 'album') icon = 'fa-compact-disc';
-                    else if(item.type === 'folder') icon = 'fa-folder';
-                    else if(item.type === 'audio') icon = 'fa-music';
-                    visual = `<div class="box-icon"><i class="fa-solid ${icon}"></i></div>`;
+                // Only show icon if no cover
+                if(!item.cover_url) {
+                    if(item.type === 'image') visual = `<img src="${item.url}">`;
+                    else {
+                        let icon = 'fa-file';
+                        if(item.subtype === 'album') icon = 'fa-compact-disc';
+                        else if(item.type === 'folder') icon = 'fa-folder';
+                        else if(item.type === 'audio') icon = 'fa-music';
+                        visual = `<div class="box-icon"><i class="fa-solid ${icon}"></i></div>`;
+                    }
                 }
+
+                // Added download folder logic
+                let dlBtn = '';
+                if(item.type === 'folder') dlBtn = `<button class="action-btn" onclick="downloadFolderAsZip('${item.id}', '${item.name}')" title="Download Zip"><i class="fa-solid fa-file-zipper"></i></button>`;
+                else dlBtn = `<button class="action-btn" onclick="downloadFile('${item.url}', '${item.name}')" title="Download"><i class="fa-solid fa-download"></i></button>`;
 
                 div.innerHTML = `
                     <div class="box-actions">
                         <button class="action-btn" onclick="renameBox('${item.id}', '${item.name}')" title="Rename"><i class="fa-solid fa-pen"></i></button>
-                        ${item.type !== 'folder' ? `<button class="action-btn" onclick="downloadFile('${item.url}', '${item.name}')" title="Download"><i class="fa-solid fa-download"></i></button>` : ''}
+                        ${dlBtn}
                         <button class="action-btn delete" onclick="deleteBox('${item.id}')" title="Delete"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                     ${visual}
@@ -643,48 +882,59 @@
             container.appendChild(grid);
         }
 
-        function renderAlbumView(container, items, name, cover) {
-            container.innerHTML += `
-                <div class="album-header glass">
-                    <div class="album-art">
-                        ${cover ? `<img src="${cover}" style="width:100%; height:100%; object-fit:cover;">` : `<i class="fa-solid fa-music"></i>`}
+
+        /* --- LINK BOARD LOGIC --- */
+        async function loadLinks() {
+            // Filter by type link. parent_id usually ignored but good practice to keep it clean.
+            const { data } = await supabase.from('boxes').select('*').eq('type', 'link').order('created_at', {ascending: false});
+            const container = document.getElementById('linkContent');
+            if(!data) return;
+            container.innerHTML = '';
+            if(data.length === 0) container.innerHTML = '<div style="grid-column:1/-1; text-align:center; opacity:0.5; padding:20px;">No links pinned yet.</div>';
+            
+            data.forEach(link => {
+                const card = document.createElement('div');
+                card.className = 'link-card';
+                const favicon = `https://www.google.com/s2/favicons?domain=${link.url}&sz=128`;
+                card.innerHTML = `
+                    <div class="link-icon"><img src="${favicon}" onerror="this.style.display='none'"></div>
+                    <div class="link-info">
+                        <div class="link-title">${link.name}</div>
+                        <div class="link-url">${link.url}</div>
                     </div>
-                    <div class="album-info">
-                        <h1>${name}</h1>
-                        <div class="album-meta">${items.length} Tracks • Album</div>
-                        <div class="album-btns">
-                            <button class="pill-btn primary" onclick="startQueue()"><i class="fa-solid fa-play"></i> Play All</button>
-                            <button class="pill-btn" onclick="startQueue(true)"><i class="fa-solid fa-shuffle"></i> Shuffle Play</button>
-                            <button class="pill-btn" onclick="document.getElementById('coverInput').click()"><i class="fa-solid fa-image"></i> Change Cover</button>
-                            <button class="pill-btn" onclick="downloadAlbumAsZip('${name}', '${currentFolder}')"><i class="fa-solid fa-file-zipper"></i> ZIP</button>
-                            <button class="pill-btn" onclick="renameBox('${currentFolder}', '${name}')"><i class="fa-solid fa-pen"></i> Rename</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="tracklist">
-                    ${items.map((item, i) => `
-                        <div class="track-item" 
-                            id="track-${item.id}"
-                            draggable="true"
-                            ondragstart="handleTrackDragStart(event, ${item.id})"
-                            ondragover="event.preventDefault()" 
-                            ondrop="handleTrackDrop(event, ${item.id}, ${item.track_number}, ${i+1})"
-                            onclick="playSingleFromList('${item.id}')">
-                            
-                            <div class="track-num">${item.track_number || i+1}</div>
-                            <div class="track-title">
-                                <span>${item.name}</span>
-                                ${item.artist ? `<span class="track-artist">${item.artist}</span>` : ''}
-                            </div>
-                            <div class="track-actions">
-                                <i class="fa-solid fa-pen" onclick="event.stopPropagation(); renameBox('${item.id}', '${item.name}')"></i>
-                                <i class="fa-solid fa-download" onclick="event.stopPropagation(); downloadFile('${item.url}', '${item.name}')"></i>
-                                <i class="fa-solid fa-trash" style="color:var(--danger)" onclick="event.stopPropagation(); deleteBox('${item.id}')"></i>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
+                    <div class="link-delete" onclick="event.stopPropagation(); deleteBox('${link.id}', true)"><i class="fa-solid fa-trash"></i></div>
+                `;
+                card.onclick = () => window.open(link.url, '_blank');
+                container.appendChild(card);
+            });
+        }
+
+        async function addLink() {
+            const url = prompt("Enter Website URL:", "https://");
+            if(!url) return;
+            const name = prompt("Enter Website Name:", "New Link");
+            if(!name) return;
+            
+            try {
+                // We use 'root' as parent_id to satisfy typical FK constraints if they exist, 
+                // but we rely on type='link' to separate them in the UI.
+                const { error } = await supabase.from('boxes').insert({
+                    name: name, 
+                    type: 'link', 
+                    url: url, 
+                    parent_id: 'root' 
+                });
+                
+                if(error) {
+                    console.error(error);
+                    alert("Error adding link: " + error.message);
+                } else {
+                    loadLinks();
+                    showToast("Link Added");
+                }
+            } catch(e) {
+                alert("Error: " + e.message);
+            }
         }
 
         /* --- AUDIO PLAYER ENGINE 2.0 --- */
@@ -710,8 +960,6 @@
                 loadAndPlayTrack(playQueue[index]);
             } else {
                 const item = libraryData.find(i => i.id == id);
-                // Check search results too if not in generic libraryData (basic impl)
-                // For now, simple playback:
                 if(item && item.type === 'audio') {
                     playQueue = [item];
                     currentQueueIndex = 0;
@@ -733,20 +981,30 @@
         function loadAndPlayTrack(track) {
             if(!track) return;
             
+            // Update Mini Player
             const player = document.getElementById('audioPlayer');
             const art = document.getElementById('playerArt');
-            
             document.getElementById('playerTrackName').innerText = track.name;
             document.getElementById('playerArtist').innerText = track.artist || "Unknown Artist";
             
+            // Update Full Player
+            document.getElementById('fpTitle').innerText = track.name;
+            document.getElementById('fpArtist').innerText = track.artist || "Unknown Artist";
+
             let cover = track.cover_url;
             if(!cover) {
                  const albumCover = libraryData.find(i => i.cover_url);
                  if(albumCover) cover = albumCover.cover_url; 
+                 else cover = ''; 
             }
 
-            if(cover) { art.src = cover; art.style.display='block'; }
-            else art.style.display='none';
+            if(cover) {
+                art.src = cover; art.style.display='block';
+                document.getElementById('fpArt').src = cover;
+            } else {
+                art.style.display='none';
+                document.getElementById('fpArt').src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%23333'%3E%3Crect width='100' height='100'/%3E%3C/svg%3E";
+            }
             
             player.classList.add('visible');
             document.getElementById('fabContainer').classList.add('shifted');
@@ -758,42 +1016,66 @@
 
             audio.src = track.url;
             audio.play().catch(e => console.log("Auto-play prevented", e));
+
+            renderQueueInPlayer();
         }
 
         function updateProgress() {
             const duration = audio.duration;
             const currentTime = audio.currentTime;
             
-            // Check if duration is valid and finite
             if (duration > 0 && isFinite(duration)) {
                 const percent = (currentTime / duration) * 100;
                 progressBar.value = percent;
+                fpProgressBar.value = percent;
                 
-                // Update gradient
-                // Use explicit % for gradient stops
                 const val = percent; 
-                progressBar.style.background = `linear-gradient(to right, var(--accent) ${val}%, rgba(255,255,255,0.1) ${val}%)`;
+                const style = `linear-gradient(to right, var(--accent) ${val}%, rgba(255,255,255,0.1) ${val}%)`;
+                progressBar.style.background = style;
+                fpProgressBar.style.background = style;
+
+                // Update Time Text
+                const formatTime = (t) => {
+                    const min = Math.floor(t/60);
+                    const sec = Math.floor(t%60).toString().padStart(2,'0');
+                    return `${min}:${sec}`;
+                };
+                document.getElementById('currTime').innerText = formatTime(currentTime);
+                document.getElementById('totalTime').innerText = formatTime(duration);
+
             } else {
-                // Reset if not playing or weird state
                 progressBar.value = 0;
-                progressBar.style.background = `rgba(255,255,255,0.1)`;
+                fpProgressBar.value = 0;
             }
         }
 
-        function seekAudio() {
+        function handleSeek(e) {
+            const percent = e.target.value;
             if(audio.duration) {
-                const seekTime = (progressBar.value / 100) * audio.duration;
-                audio.currentTime = seekTime;
+                audio.currentTime = (percent / 100) * audio.duration;
+                progressBar.value = percent;
+                fpProgressBar.value = percent;
             }
         }
 
-        function togglePlayPause() { if(audio.paused) audio.play(); else audio.pause(); }
-        function updatePlayBtnState() { document.getElementById('btnPlayPause').innerHTML = audio.paused ? '<i class="fa-solid fa-play"></i>' : '<i class="fa-solid fa-pause"></i>'; }
+        function togglePlayPause() { 
+            if(audio.paused) audio.play(); else audio.pause(); 
+        }
+        
+        function updatePlayBtnState() { 
+            const icon = audio.paused ? '<i class="fa-solid fa-play"></i>' : '<i class="fa-solid fa-pause"></i>';
+            document.getElementById('btnPlayPause').innerHTML = icon;
+            const fpIcon = audio.paused ? '<i class="fa-solid fa-circle-play"></i>' : '<i class="fa-solid fa-circle-pause"></i>';
+            document.getElementById('fpPlayBtn').innerHTML = fpIcon;
+        }
         
         function playNext() {
             if(currentQueueIndex < playQueue.length - 1) {
                 currentQueueIndex++;
                 loadAndPlayTrack(playQueue[currentQueueIndex]);
+            } else {
+                audio.currentTime = 0;
+                audio.pause();
             }
         }
 
@@ -805,12 +1087,38 @@
             }
         }
 
-        function shuffleQueue() { startQueue(true); }
         function closePlayer() {
             audio.pause();
             document.getElementById('audioPlayer').classList.remove('visible');
             document.getElementById('fabContainer').classList.remove('shifted');
             document.getElementById('inputArea').classList.remove('shifted');
+            collapsePlayer();
+        }
+
+        function expandPlayer(e) {
+            if(e.target.closest('.ctrl-btn') || e.target.closest('button')) return;
+            document.getElementById('fullScreenPlayer').classList.add('open');
+        }
+        function collapsePlayer() {
+            document.getElementById('fullScreenPlayer').classList.remove('open');
+        }
+        function renderQueueInPlayer() {
+            const qEl = document.getElementById('fpQueue');
+            qEl.innerHTML = '';
+            playQueue.forEach((track, idx) => {
+                const div = document.createElement('div');
+                div.className = `fp-queue-item ${idx === currentQueueIndex ? 'active' : ''}`;
+                div.innerText = `${idx+1}. ${track.name}`;
+                div.onclick = () => {
+                    currentQueueIndex = idx;
+                    loadAndPlayTrack(playQueue[currentQueueIndex]);
+                };
+                qEl.appendChild(div);
+            });
+        }
+        function toggleRepeat() {
+            audio.loop = !audio.loop;
+            showToast(audio.loop ? "Repeat One" : "Repeat Off");
         }
 
         /* --- UPLOAD & METADATA --- */
@@ -863,13 +1171,9 @@
                 const { error: dbError } = await supabase.from('boxes').insert({ 
                     name: displayName, type: type, url: publicUrl, 
                     cover_url: meta.cover, track_number: meta.track,
-                    artist: meta.artist, // Insert Artist
+                    artist: meta.artist,
                     parent_id: specificParentId || currentFolder 
                 });
-                if(dbError) {
-                    console.error(dbError);
-                    showToast("Database Error: " + dbError.message, "error");
-                }
             } else {
                 await supabase.from('stream').insert({ type: type, content: publicUrl, file_name: file.name });
             }
@@ -980,34 +1284,53 @@
             }
         }
 
-        async function deleteBox(id) {
+        async function deleteBox(id, isLink = false) {
             if(confirm("Delete this item?")) { 
                 await supabase.from('boxes').delete().eq('id', id); 
-                loadLibrary();
+                if(isLink) loadLinks(); else loadLibrary();
                 showToast("Deleted", "error");
             }
         }
 
-        async function downloadAlbumAsZip(albumName, albumId) {
+        async function downloadFolderAsZip(folderId, folderName) {
             const loader = document.getElementById('loader');
             const text = document.getElementById('loaderText');
-            loader.style.display = 'flex'; text.innerText = "Zipping...";
-            const { data: files } = await supabase.from('boxes').select('*').eq('parent_id', albumId);
-            if(!files || files.length === 0) { alert("Empty album"); loader.style.display='none'; return; }
+            loader.style.display = 'flex'; text.innerText = "Zipping Folder...";
+            
+            const { data: files } = await supabase.from('boxes').select('*').eq('parent_id', folderId);
+            
+            if(!files || files.length === 0) { 
+                showToast("Empty folder", "error"); 
+                loader.style.display='none'; 
+                return; 
+            }
+            
             const zip = new JSZip();
-            const folder = zip.folder(albumName);
+            const folder = zip.folder(folderName);
+            let count = 0;
+
             const promises = files.map(async (file) => {
                 if(file.type === 'folder' || file.subtype === 'album') return; 
                 try {
                     const response = await fetch(file.url);
                     const blob = await response.blob();
                     folder.file(file.name, blob);
+                    count++;
                 } catch (err) { console.error(err); }
             });
+
             await Promise.all(promises);
-            zip.generateAsync({type:"blob"}).then(function(content) {
-                saveAs(content, `${albumName}.zip`);
+            
+            if(count === 0) {
+                showToast("No downloadable files found", "error");
                 loader.style.display = 'none';
+                return;
+            }
+
+            zip.generateAsync({type:"blob"}).then(function(content) {
+                saveAs(content, `${folderName}.zip`);
+                loader.style.display = 'none';
+                showToast("Download Started");
             });
         }
 
@@ -1029,7 +1352,12 @@
             document.querySelectorAll('.nav-pill button').forEach(b => b.classList.remove('active'));
             document.getElementById(tab).classList.add('active');
             document.getElementById('tab-'+tab).classList.add('active');
-            document.getElementById('fabContainer').style.display = tab === 'library' ? 'flex' : 'none';
+            
+            const fab = document.getElementById('fabContainer');
+            if(tab === 'library') fab.style.display = 'flex';
+            else fab.style.display = 'none';
+            
+            if(tab === 'links') loadLinks();
         }
 
         function handleDropOnBox(e, targetId, targetType, targetSubtype) {
@@ -1071,32 +1399,72 @@
         };
 
         function subscribeRealtime() {
-            supabase.channel('boxes-channel').on('postgres_changes', { event: '*', schema: 'public', table: 'boxes' }, payload => { loadLibrary(); }).subscribe();
+            supabase.channel('boxes-channel').on('postgres_changes', { event: '*', schema: 'public', table: 'boxes' }, payload => { 
+                if(payload.new.type === 'link' || payload.old.type === 'link') loadLinks();
+                else loadLibrary(); 
+            }).subscribe();
             supabase.channel('stream-channel').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stream' }, p => appendMessage(p.new)).subscribe();
         }
 
         function loadStream() {
             supabase.from('stream').select('*').order('created_at', { ascending: true }).limit(50)
-                .then(({ data }) => { if(data) data.forEach(appendMessage); });
+                .then(({ data }) => { 
+                    if(data) {
+                        const feed = document.getElementById("streamFeed");
+                        feed.innerHTML = ''; // Clear to prevent dups if reloaded
+                        lastMessageDate = null;
+                        data.forEach(appendMessage); 
+                    }
+                });
         }
 
         function appendMessage(data) {
             const feed = document.getElementById("streamFeed");
-            const row = document.createElement('div');
-            row.className = 'msg-row';
             const date = new Date(data.created_at);
-            const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            const dateStr = date.toLocaleDateString([], {month:'short', day:'numeric'});
-            let contentHtml = '', typeClass = '';
+            
+            // Date Separator Logic
+            const dateStr = date.toLocaleDateString();
+            if(lastMessageDate !== dateStr) {
+                const sep = document.createElement('div');
+                sep.className = 'date-separator';
+                sep.innerText = date.toLocaleDateString([], {weekday:'long', month:'long', day:'numeric'});
+                feed.appendChild(sep);
+                lastMessageDate = dateStr;
+            }
 
-            if(data.type === 'text') { contentHtml = data.content; } 
-            else if(data.type === 'image') { contentHtml = `<img src="${data.content}" onclick="openLightbox('${data.content}')">`; typeClass = 'image-msg'; } 
+            const row = document.createElement('div');
+            row.className = 'chat-msg';
+            
+            const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            let contentHtml = '';
+            let bubbleClass = 'chat-bubble';
+
+            if(data.type === 'text') { 
+                contentHtml = data.content; 
+            } 
+            else if(data.type === 'image') { 
+                contentHtml = `<img src="${data.content}" onclick="openLightbox('${data.content}')">`; 
+                bubbleClass += ' media'; 
+            } 
             else if(data.type === 'audio') {
-                typeClass = 'audio-msg';
-                contentHtml = `<i class="fa-solid fa-circle-play"></i> <span>${data.file_name}</span>`;
+                bubbleClass += ' audio-card';
+                contentHtml = `
+                    <div class="play-circle"><i class="fa-solid fa-play"></i></div>
+                    <div>
+                        <div style="font-weight:600; font-size:0.9rem;">${data.file_name}</div>
+                        <div style="font-size:0.75rem; opacity:0.7;">Audio Clip</div>
+                    </div>
+                `;
                 row.onclick = () => playGlobalAudio(data.content, data.file_name);
             }
-            row.innerHTML = `<div class="msg-content ${typeClass}">${contentHtml}</div><div class="msg-time">${timeStr}<br>${dateStr}</div>`;
+
+            row.innerHTML = `
+                <div class="chat-avatar">${data.type === 'text' ? 'U' : '<i class="fa-solid fa-paperclip"></i>'}</div>
+                <div class="${bubbleClass}">
+                    ${contentHtml}
+                    <div class="chat-meta">${timeStr}</div>
+                </div>
+            `;
             feed.appendChild(row);
             window.scrollTo(0, document.body.scrollHeight);
         }
