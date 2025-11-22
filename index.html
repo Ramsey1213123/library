@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glass Cloud OS 3.1 (Stable Batch)</title>
+    <title>Glass Cloud OS 3.3</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
@@ -45,12 +45,33 @@
         }
         .nav button.active { background: rgba(255,255,255,0.1); color: var(--accent); box-shadow: 0 0 15px rgba(0,210,255,0.2); }
 
-        .search-bar { position: relative; width: 200px; transition: 0.3s; }
-        .search-bar input { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); padding: 8px 15px 8px 35px; border-radius: 20px; color: white; outline: none; box-sizing: border-box; }
-        .search-bar input:focus { border-color: var(--accent); background: rgba(0,0,0,0.4); }
-        .search-bar i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.5); font-size: 0.8rem; }
+        /* FIXED SEARCH BAR STYLING */
+        .search-wrapper { position: relative; width: 250px; height: 40px; }
+        .search-wrapper input { 
+            width: 100%; height: 100%; 
+            background: rgba(255, 255, 255, 0.1); 
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            border-radius: 50px; /* Pill Shape */
+            padding-left: 45px; /* Room for icon */
+            padding-right: 15px;
+            color: white; outline: none; box-sizing: border-box; 
+            font-family: 'Poppins', sans-serif;
+            backdrop-filter: blur(5px);
+            transition: 0.3s;
+        }
+        .search-wrapper input::placeholder { color: rgba(255,255,255,0.5); }
+        .search-wrapper input:focus { 
+            background: rgba(255, 255, 255, 0.15); 
+            border-color: var(--accent); 
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.15);
+        }
+        .search-wrapper i { 
+            position: absolute; left: 15px; top: 50%; 
+            transform: translateY(-50%); 
+            color: rgba(255,255,255,0.6); 
+            pointer-events: none;
+        }
 
-        /* --- Views --- */
         .view { display: none; flex: 1; overflow-y: auto; padding: 20px; position: relative; z-index: 5; }
         .view.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -93,12 +114,14 @@
         .tracklist { list-style: none; padding: 0; padding-bottom: 150px; }
         .track-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.2s; cursor: pointer; border-radius: 10px; }
         .track-item:hover { background: rgba(255,255,255,0.05); }
+        .track-item.dragging { opacity: 0.5; background: var(--accent); }
         .track-icon { width: 40px; text-align: center; color: var(--accent); margin-right: 15px; }
+        .track-num { font-family: monospace; opacity: 0.5; margin-right: 15px; width: 20px; text-align: right;}
         .track-name { flex: 1; font-weight: 500; }
         .track-actions { opacity: 0; transition: 0.2s; display: flex; gap: 10px; }
         .track-item:hover .track-actions { opacity: 1; }
 
-        /* --- STREAM (RESTORED) --- */
+        /* --- STREAM & INPUT --- */
         .stream-container { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; height: 100%; }
         .stream-feed { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding: 15px; padding-bottom: 180px; }
         
@@ -110,7 +133,13 @@
         .msg.audio:hover { transform: scale(1.02); background: rgba(0, 210, 255, 0.3); }
         .msg .timestamp { font-size: 0.65rem; opacity: 0.6; margin-top: 5px; text-align: right; }
 
-        .input-area { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 780px; display: flex; gap: 10px; padding: 10px; border-radius: 25px; z-index: 20; transition: 0.3s; }
+        /* INPUT AREA */
+        .input-area { 
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); 
+            width: 90%; max-width: 780px; display: flex; gap: 10px; padding: 10px; 
+            border-radius: 25px; z-index: 20; transition: bottom 0.4s ease;
+        }
+        .input-area.shifted { bottom: 110px; }
 
         /* --- UI Elements --- */
         .fab-container { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: row; gap: 15px; z-index: 10000; transition: 0.3s; }
@@ -142,12 +171,15 @@
         .toast i { color: var(--accent); }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         
+        .nav-btn-back { font-size: 1.1rem; opacity: 0.8; cursor: pointer; padding-right:10px; transition:0.2s; }
+        .nav-btn-back:hover { color: var(--accent); opacity:1; }
+
         @media (max-width: 600px) {
             .player-info { width: 20%; }
             .player-text { display: none; }
             audio { width: 65%; }
             .nav-container { flex-direction: column; gap: 10px; }
-            .search-bar { width: 100%; }
+            .search-wrapper { width: 100%; }
         }
     </style>
 </head>
@@ -158,15 +190,17 @@
             <button onclick="switchTab('library')" class="active" id="tab-library"><i class="fa-solid fa-folder-tree"></i> Library</button>
             <button onclick="switchTab('sync')" id="tab-sync"><i class="fa-solid fa-bolt"></i> Stream</button>
         </div>
-        <div class="search-bar">
+        <div class="search-wrapper">
             <i class="fa-solid fa-search"></i>
             <input type="text" id="searchInput" placeholder="Search..." onkeyup="filterLibrary()">
         </div>
     </div>
 
     <div id="library" class="view active">
-        <div class="breadcrumbs" id="breadcrumbs" style="margin-bottom: 20px; opacity: 0.7; font-size: 0.9rem; cursor:pointer;">
-            <i class="fa-solid fa-house" onclick="navigateTo('root')"></i> <span id="folderNameDisplay"> / Home</span>
+        <div class="breadcrumbs" id="breadcrumbs" style="margin-bottom: 20px; opacity: 0.7; font-size: 0.9rem; display:flex; align-items:center;">
+            <i class="fa-solid fa-chevron-left nav-btn-back" onclick="goBack()" title="Go Back"></i>
+            <span style="cursor:pointer" onclick="navigateTo('root')"><i class="fa-solid fa-house"></i></span>
+            <span id="folderNameDisplay"> / Home</span>
         </div>
         <div id="libraryContent"></div>
     </div>
@@ -224,9 +258,11 @@
         const jsmediatags = window.jsmediatags;
 
         let currentFolder = 'root';
+        let navHistory = []; // Stack for Back Button
         let selectionMode = false;
         let selectedItems = new Set();
-        let libraryData = []; // Store local copy for search
+        let libraryData = []; 
+        let isLoading = false; // Prevent double rendering
 
         function init() {
             loadLibrary();
@@ -246,11 +282,34 @@
             setTimeout(() => { div.style.opacity = '0'; setTimeout(()=>div.remove(), 300); }, 3000);
         }
 
+        // --- NAVIGATION LOGIC ---
+        function navigateTo(id, name) {
+            if(id !== currentFolder) {
+                navHistory.push(currentFolder); // Save history
+                currentFolder = id.toString();
+                document.getElementById('folderNameDisplay').innerText = id==='root'?" / Home" : ` / ${name}`;
+                loadLibrary();
+            }
+        }
+
+        function goBack() {
+            if(navHistory.length > 0) {
+                const prev = navHistory.pop();
+                currentFolder = prev;
+                supabase.from('boxes').select('name').eq('id', currentFolder).single().then(({data}) => {
+                    const name = data ? data.name : "Home";
+                    document.getElementById('folderNameDisplay').innerText = currentFolder==='root'?" / Home" : ` / ${name}`;
+                });
+                loadLibrary();
+            }
+        }
+
         // --- LIBRARY LOGIC ---
         async function loadLibrary() {
+            if(isLoading) return; 
+            isLoading = true;
             const container = document.getElementById("libraryContent");
-            container.innerHTML = ""; 
-
+            
             let isAlbum = false, albumCover = null, albumName = "Home";
 
             if(currentFolder !== 'root') {
@@ -262,10 +321,19 @@
                 }
             }
 
-            const { data } = await supabase.from('boxes').select('*').eq('parent_id', currentFolder).order('created_at', { ascending: false });
+            const { data } = await supabase.from('boxes').select('*').eq('parent_id', currentFolder);
+            isLoading = false;
             if (!data) return;
 
-            libraryData = data; // Save for search
+            libraryData = data; 
+            container.innerHTML = ""; 
+
+            // Sort logic
+            if(isAlbum) {
+                data.sort((a, b) => (a.track_number || 999) - (b.track_number || 999));
+            } else {
+                data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            }
 
             // Auto-set Album cover
             if (isAlbum && !albumCover) {
@@ -299,7 +367,7 @@
                 div.id = 'box-' + item.id;
                 
                 div.draggable = true;
-                div.ondragstart = (e) => e.dataTransfer.setData("text/plain", item.id);
+                div.ondragstart = (e) => e.dataTransfer.setData("text/plain", JSON.stringify({id: item.id, type: 'move'}));
                 div.ondragover = (e) => e.preventDefault();
                 div.ondrop = (e) => handleDropOnBox(e, item.id, item.type, item.subtype);
 
@@ -341,9 +409,16 @@
                 </div>
                 <ul class="tracklist">
                     ${items.map((item, i) => `
-                        <li class="track-item" onclick="playOrView('${item.type}', '${item.url}', '${item.name}', '${cover || item.cover_url}')">
+                        <li class="track-item" 
+                            draggable="true" 
+                            ondragstart="handleTrackDragStart(event, ${item.id})"
+                            ondragover="event.preventDefault()" 
+                            ondrop="handleTrackDrop(event, ${item.id}, ${item.track_number}, ${i+1})"
+                            onclick="playOrView('${item.type}', '${item.url}', '${item.name}', '${cover || item.cover_url}')">
+                            
+                            <div class="track-num">${item.track_number || i+1}</div>
                             <div class="track-icon"><i class="fa-solid ${item.type==='audio'?'fa-play-circle':(item.type==='image'?'fa-image':'fa-file')}"></i></div>
-                            <div class="track-name">${i+1}. ${item.name}</div>
+                            <div class="track-name">${item.name}</div>
                             <div class="track-actions">
                                 <button class="action-btn" onclick="event.stopPropagation(); renameBox('${item.id}', '${item.name}')"><i class="fa-solid fa-pen"></i></button>
                                 <button class="action-btn" onclick="event.stopPropagation(); downloadFile('${item.url}', '${item.name}')"><i class="fa-solid fa-download"></i></button>
@@ -353,6 +428,30 @@
                     `).join('')}
                 </ul>
             `;
+        }
+
+        // --- TRACK REORDERING ---
+        function handleTrackDragStart(e, id) {
+            e.dataTransfer.setData("text/plain", JSON.stringify({id: id, type: 'reorder'}));
+            e.target.classList.add('dragging');
+        }
+
+        async function handleTrackDrop(e, targetId, targetNum, fallbackNum) {
+            e.preventDefault();
+            e.stopPropagation();
+            try {
+                const data = JSON.parse(e.dataTransfer.getData("text/plain"));
+                if(data.type === 'reorder' && data.id !== targetId) {
+                    const { data: draggedItem } = await supabase.from('boxes').select('track_number').eq('id', data.id).single();
+                    const { data: targetItem } = await supabase.from('boxes').select('track_number').eq('id', targetId).single();
+                    const newNum = targetItem.track_number || fallbackNum;
+                    const oldNum = draggedItem.track_number || 999;
+                    await supabase.from('boxes').update({track_number: newNum}).eq('id', data.id);
+                    await supabase.from('boxes').update({track_number: oldNum}).eq('id', targetId);
+                    loadLibrary();
+                    showToast("Order Updated");
+                }
+            } catch(e){}
         }
 
         // --- ACTIONS ---
@@ -392,12 +491,6 @@
             await supabase.from('boxes').update({parent_id:album.id}).in('id', Array.from(selectedItems));
             toggleSelectionMode(); loadLibrary();
             showToast("Album Created");
-        }
-
-        function navigateTo(id, name) {
-            currentFolder = id.toString();
-            document.getElementById('folderNameDisplay').innerText = id==='root'?" / Home" : ` / ${name}`;
-            loadLibrary();
         }
 
         async function createFolder() {
@@ -507,11 +600,11 @@
             const a = document.createElement("a"); a.href = url; a.setAttribute("download", filename); a.target = "_blank"; a.click();
         }
 
-        // --- UPLOAD LOGIC (FIXED) ---
+        // --- UPLOAD LOGIC ---
         document.getElementById('library').ondragover = (e) => e.preventDefault();
         document.getElementById('library').ondrop = async (e) => {
             e.preventDefault();
-            if(e.target.closest('.box')) return; 
+            if(e.target.closest('.box') || e.target.closest('.track-item')) return; 
             handleBatchUpload(Array.from(e.dataTransfer.files), 'library');
         };
 
@@ -519,18 +612,13 @@
         document.getElementById('fileInput').onchange = (e) => { handleBatchUpload(Array.from(e.target.files), 'library'); document.getElementById('fileInput').value = ""; };
         document.getElementById('syncInputFile').onchange = (e) => { if(e.target.files[0]) handleBatchUpload([e.target.files[0]], 'sync'); };
 
-        // --- NEW BATCH MANAGER ---
         async function handleBatchUpload(files, context) {
             if(files.length === 0) return;
-
-            // 1. Initialize Loader
             const loader = document.getElementById('loader');
             const loaderText = document.getElementById('loaderText');
             loader.style.display = 'flex';
 
             let targetParent = currentFolder;
-
-            // 2. Handle Auto-Album Creation (If multiple files dropped in Root)
             if(files.length > 1 && currentFolder === 'root' && context === 'library') {
                 const albumName = prompt(`Create album for these ${files.length} files?`, `Upload ${new Date().toLocaleDateString()}`);
                 if(albumName) {
@@ -541,61 +629,69 @@
                 }
             }
 
-            // 3. Sequential Upload Loop
             for(let i = 0; i < files.length; i++) {
                 loaderText.innerText = `Uploading ${i + 1}/${files.length}...`;
-                // Wait for each upload to finish before starting next
                 await uploadFile(files[i], context, targetParent);
             }
 
-            // 4. Cleanup
             loader.style.display = 'none';
-            if(context === 'library') {
-                loadLibrary();
-                showToast("All files uploaded");
-            }
+            if(context === 'library') { loadLibrary(); showToast("Upload Complete"); }
         }
 
         async function handleDropOnBox(e, targetId, targetType, targetSubtype) {
             e.preventDefault(); e.stopPropagation();
-            const draggedId = e.dataTransfer.getData("text/plain");
-            if((targetType === 'folder' || targetSubtype === 'album') && draggedId) {
-                await supabase.from('boxes').update({ parent_id: targetId }).eq('id', draggedId);
-                loadLibrary();
-                showToast("Moved");
-            }
+            try {
+                const data = JSON.parse(e.dataTransfer.getData("text/plain"));
+                if(data.type === 'move' && (targetType === 'folder' || targetSubtype === 'album')) {
+                    await supabase.from('boxes').update({ parent_id: targetId }).eq('id', data.id);
+                    loadLibrary();
+                    showToast("Moved");
+                }
+            } catch(err) {}
         }
 
         async function uploadFile(file, context, specificParentId = null) {
             const fill = document.getElementById('progressFill');
-            fill.style.width='20%'; // Visual feedback start
+            fill.style.width='20%';
 
             const fileName = `${Date.now()}_${file.name}`;
             const { error } = await supabase.storage.from('files').upload(fileName, file);
             if(error) { showToast(`Error: ${file.name}`, "error"); return; }
             
-            fill.style.width='60%'; // Upload done, processing metadata
+            fill.style.width='60%';
             const { data: { publicUrl } } = supabase.storage.from('files').getPublicUrl(fileName);
             
             let type = file.type.startsWith('image/') ? 'image' : (file.type.startsWith('audio/') ? 'audio' : 'file');
             let coverUrl = null;
+            let trackNum = 0;
 
             if(type === 'audio' && context === 'library') {
-                try { coverUrl = await extractAudioCover(file); } catch(e) {}
+                try { 
+                    const meta = await extractAudioMeta(file); 
+                    coverUrl = meta.cover;
+                    trackNum = meta.track;
+                } catch(e) {}
             }
 
             if(context === 'library') {
-                await supabase.from('boxes').insert({ name: file.name, type: type, url: publicUrl, cover_url: coverUrl, parent_id: specificParentId || currentFolder });
+                await supabase.from('boxes').insert({ 
+                    name: file.name, type: type, url: publicUrl, 
+                    cover_url: coverUrl, track_number: trackNum,
+                    parent_id: specificParentId || currentFolder 
+                });
             } else {
                 await supabase.from('stream').insert({ type: type, content: publicUrl, file_name: file.name });
             }
             fill.style.width='100%'; 
         }
 
-        function extractAudioCover(file) {
+        function extractAudioMeta(file) {
             return new Promise((resolve) => {
                 jsmediatags.read(file, {
                     onSuccess: async (tag) => {
+                        let cover = null;
+                        let track = 0;
+                        
                         const picture = tag.tags.picture;
                         if (picture) {
                             let base64String = "";
@@ -606,9 +702,15 @@
                             const artName = `covers/${Date.now()}.jpg`;
                             await supabase.storage.from('files').upload(artName, blob);
                             const { data: { publicUrl } } = supabase.storage.from('files').getPublicUrl(artName);
-                            resolve(publicUrl);
-                        } else resolve(null);
-                    }, onError: () => resolve(null)
+                            cover = publicUrl;
+                        }
+
+                        if(tag.tags.track) {
+                            track = parseInt(tag.tags.track.split('/')[0]) || 0;
+                        }
+
+                        resolve({cover, track});
+                    }, onError: () => resolve({cover:null, track:0})
                 });
             });
         }
