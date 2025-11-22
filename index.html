@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glass Cloud OS 4.0</title>
+    <title>Glass Cloud OS 4.1</title>
     
     <!-- Icons & Fonts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <!-- Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -25,7 +25,7 @@
             --text: #f0f6fc;
             --text-muted: #8b949e;
             --danger: #ff7b72;
-            --blur-strength: 16px;
+            --blur-strength: 20px;
         }
 
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
@@ -97,7 +97,6 @@
         .view.active { display: block; animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
@@ -119,7 +118,6 @@
         .box:hover { transform: translateY(-5px) scale(1.02); background: rgba(255,255,255,0.1); border-color: var(--glass-highlight); }
         .box.selected { border: 2px solid var(--accent); background: rgba(100, 255, 218, 0.1); }
 
-        /* Icons/Images in Box */
         .box img { width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; z-index: -1; opacity: 0.6; transition: 0.4s;}
         .box:hover img { opacity: 0.4; transform: scale(1.1); }
         
@@ -135,7 +133,6 @@
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        /* Quick Actions on Hover */
         .box-actions { 
             position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; 
             opacity: 0; transform: translateY(-5px); transition: 0.3s; z-index: 5; 
@@ -150,7 +147,6 @@
         .action-btn.delete:hover { background: var(--danger); color: white; }
 
         /* --- ALBUM VIEW --- */
-        .album-container { padding-bottom: 150px; }
         .album-header { 
             display: flex; align-items: flex-end; gap: 30px; margin-bottom: 40px; 
             padding: 40px; background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%); 
@@ -181,6 +177,7 @@
             border: 1px solid transparent;
         }
         .track-item:hover { background: rgba(255,255,255,0.05); border-color: var(--glass-border); }
+        .track-item.playing { background: rgba(100, 255, 218, 0.1); border-color: var(--accent); }
         .track-num { width: 40px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
         .track-title { flex: 1; font-weight: 500; }
         .track-actions { opacity: 0; display: flex; gap: 10px; transition: 0.2s; }
@@ -202,11 +199,9 @@
             word-wrap: break-word;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        /* Image messages don't need padding/bg */
         .msg-content.image-msg { background: transparent; padding: 0; border: none; box-shadow: none; }
         .msg-content img { max-width: 100%; border-radius: 20px; cursor: pointer; border: 1px solid var(--glass-border); }
         
-        /* Audio Message */
         .msg-content.audio-msg { 
             background: linear-gradient(135deg, rgba(100, 255, 218, 0.1), rgba(100, 255, 218, 0.02));
             border-color: rgba(100, 255, 218, 0.3);
@@ -214,33 +209,28 @@
         }
         .msg-content.audio-msg:hover { transform: scale(1.02); border-color: var(--accent); }
         .msg-content.audio-msg i { color: var(--accent); font-size: 1.2rem; }
-
         .msg-time { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; padding-bottom: 5px; }
 
-        /* Input Area (Stream) */
         .input-bar { 
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
             width: 90%; max-width: 700px; display: flex; align-items: center; gap: 10px; padding: 8px; 
             border-radius: 50px; z-index: 20; transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
-        .input-bar input { 
-            flex: 1; background: transparent; border: none; color: white; 
-            padding: 10px 15px; font-size: 1rem; 
-        }
+        .input-bar input { flex: 1; background: transparent; border: none; color: white; padding: 10px 15px; font-size: 1rem; }
         .icon-btn { 
             width: 40px; height: 40px; border-radius: 50%; border: none; background: transparent;
             color: var(--accent); font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
             transition: 0.2s;
         }
         .icon-btn:hover { background: rgba(100, 255, 218, 0.1); }
-        .input-bar.shifted { bottom: 130px; }
+        .input-bar.shifted { bottom: 140px; }
 
         /* --- Floating Action Buttons --- */
         .fab-container { 
             position: fixed; bottom: 40px; right: 40px; 
             display: flex; flex-direction: row-reverse; gap: 15px; z-index: 100; transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); 
         }
-        .fab-container.shifted { bottom: 140px; }
+        .fab-container.shifted { bottom: 150px; }
         
         .fab-btn { 
             width: 60px; height: 60px; border-radius: 50%; 
@@ -263,55 +253,59 @@
         /* --- Audio Player --- */
         #audioPlayer { 
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(150%); 
-            width: 95%; max-width: 600px; height: 85px; 
+            width: 95%; max-width: 650px; height: 90px; 
             background: rgba(15, 23, 42, 0.85); 
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 40px; 
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 45px; 
             display: flex; align-items: center; justify-content: space-between; 
-            padding: 0 20px; z-index: 200; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            padding: 0 25px; z-index: 200; 
+            box-shadow: 0 15px 50px rgba(0,0,0,0.6);
             transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         #audioPlayer.visible { transform: translateX(-50%) translateY(0); }
         
-        .player-art { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1); animation: spin 10s linear infinite; animation-play-state: paused; }
-        .player-art.playing { animation-play-state: running; border-color: var(--accent); }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        .player-info { display: flex; flex-direction: column; margin-left: 15px; flex: 1; overflow: hidden; }
+        .player-art { width: 55px; height: 55px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
+        .player-info { display: flex; flex-direction: column; margin-left: 15px; flex: 1; overflow: hidden; justify-content: center; }
         .player-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.95rem; }
-        .player-status { font-size: 0.75rem; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; }
+        .player-status { font-size: 0.75rem; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
 
-        audio { height: 35px; width: 220px; filter: invert(1) hue-rotate(180deg); opacity: 0.8; }
+        /* Player Controls */
+        .player-controls { display: flex; gap: 15px; align-items: center; margin: 0 15px; }
+        .ctrl-btn { background: none; border: none; color: white; opacity: 0.7; cursor: pointer; font-size: 1.1rem; transition: 0.2s; }
+        .ctrl-btn:hover { opacity: 1; color: var(--accent); }
+        .ctrl-btn.active { color: var(--accent); opacity: 1; }
         
+        audio { display: none; } /* Using custom controls mostly, but element exists for logic */
+
         /* --- Breadcrumbs --- */
         .breadcrumbs { 
             padding: 10px 0 20px 0; color: var(--text-muted); font-size: 0.9rem; 
             display: flex; align-items: center; gap: 10px; 
         }
-        .crumb { cursor: pointer; transition: 0.2s; }
+        .crumb { cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
         .crumb:hover { color: white; }
         .crumb-active { color: white; font-weight: 600; }
+        .crumb-sep { font-size: 0.7rem; opacity: 0.5; }
 
         /* --- Overlays --- */
         #loader { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; }
         .spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
-        
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 100000; display: flex; flex-direction: column; gap: 10px; }
         .toast { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 12px 20px; border-radius: 10px; color: white; animation: slideIn 0.3s ease; display: flex; align-items: center; gap: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .toast i { color: var(--accent); }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        /* Mobile Adjustments */
         @media (max-width: 700px) {
             .nav-container { flex-direction: column; gap: 15px; }
             #searchInput { width: 100%; }
             .album-header { flex-direction: column; align-items: center; text-align: center; }
             .album-btns { justify-content: center; }
-            #audioPlayer { width: 92%; height: 130px; flex-wrap: wrap; justify-content: center; padding: 15px; bottom: 20px; border-radius: 30px;}
-            .player-info { text-align: center; width: 100%; margin: 5px 0 10px 0; }
-            audio { width: 100%; }
+            #audioPlayer { width: 92%; height: auto; flex-wrap: wrap; justify-content: center; padding: 20px; bottom: 20px; border-radius: 30px; flex-direction: column; gap: 15px;}
+            .player-info { text-align: center; width: 100%; margin: 0; }
+            .player-controls { margin-top: 5px; }
         }
     </style>
 </head>
@@ -327,11 +321,7 @@
 
     <!-- LIBRARY VIEW -->
     <div id="library" class="view active">
-        <div class="breadcrumbs" id="breadcrumbs">
-            <div class="crumb" onclick="navigateTo('root')"><i class="fa-solid fa-house"></i> Home</div>
-            <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem; opacity: 0.5;"></i>
-            <div class="crumb-active" id="folderNameDisplay">/</div>
-        </div>
+        <div class="breadcrumbs" id="breadcrumbs"></div>
         <div id="libraryContent"></div>
     </div>
 
@@ -355,15 +345,23 @@
 
     <!-- AUDIO PLAYER -->
     <div id="audioPlayer">
-        <div style="display:flex; align-items:center; flex:1; overflow:hidden;">
+        <div style="display:flex; align-items:center; flex:1; overflow:hidden; width: 100%;">
             <img src="" id="playerArt" class="player-art" style="display:none">
             <div class="player-info">
                 <div class="player-title" id="playerTrackName">Select a song</div>
-                <div class="player-status">Now Playing</div>
+                <div class="player-status" id="playerStatus">Ready</div>
             </div>
         </div>
-        <audio id="globalAudio" controls onplay="document.getElementById('playerArt').classList.add('playing')" onpause="document.getElementById('playerArt').classList.remove('playing')"></audio>
+        
+        <div class="player-controls">
+            <button class="ctrl-btn" onclick="playPrev()" title="Previous"><i class="fa-solid fa-backward-step"></i></button>
+            <button class="ctrl-btn" onclick="togglePlayPause()" id="btnPlayPause" title="Play/Pause" style="font-size:1.5rem; color:white;"><i class="fa-solid fa-play"></i></button>
+            <button class="ctrl-btn" onclick="playNext()" title="Next"><i class="fa-solid fa-forward-step"></i></button>
+            <button class="ctrl-btn" onclick="shuffleQueue()" title="Shuffle" id="btnShuffle"><i class="fa-solid fa-shuffle"></i></button>
+        </div>
+
         <button onclick="closePlayer()" style="background:none; border:none; color:rgba(255,255,255,0.3); font-size:1.2rem; cursor:pointer; margin-left: 15px;"><i class="fa-solid fa-xmark"></i></button>
+        <audio id="globalAudio"></audio>
     </div>
 
     <!-- LOADER -->
@@ -398,23 +396,35 @@
         let libraryData = []; 
         let isLoading = false;
 
+        // Player State
+        let playQueue = [];
+        let currentQueueIndex = 0;
+        let isShuffle = false;
+        const audio = document.getElementById('globalAudio');
+
         function init() {
+            renderBreadcrumbs();
             loadLibrary();
             loadStream();
             subscribeRealtime();
             document.getElementById('chatInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendText(); });
             window.addEventListener('paste', handlePaste);
-            
-            // Cover Art Input Listener
             document.getElementById('coverInput').addEventListener('change', handleCoverUpload);
+            
+            // Audio Event Listeners
+            audio.addEventListener('ended', playNext);
+            audio.addEventListener('play', updatePlayBtnState);
+            audio.addEventListener('pause', updatePlayBtnState);
         }
 
-        /* --- NAVIGATION --- */
+        /* --- NAVIGATION & BREADCRUMBS --- */
         function navigateTo(id, name) {
             if(id !== currentFolder) {
-                navHistory.push({id: currentFolder, name: document.getElementById('folderNameDisplay').innerText});
+                // Get current folder name for history
+                const currentName = document.querySelector('.crumb-active') ? document.querySelector('.crumb-active').innerText : "Home";
+                navHistory.push({id: currentFolder, name: currentName});
                 currentFolder = id.toString();
-                updateBreadcrumbs(name || "Home");
+                renderBreadcrumbs(name);
                 loadLibrary();
             }
         }
@@ -423,16 +433,51 @@
             if(navHistory.length > 0) {
                 const prev = navHistory.pop();
                 currentFolder = prev.id;
-                document.getElementById('folderNameDisplay').innerText = prev.name;
+                renderBreadcrumbs(prev.name);
+                loadLibrary();
+            } else {
+                currentFolder = 'root';
+                renderBreadcrumbs("Home");
                 loadLibrary();
             }
         }
 
-        function updateBreadcrumbs(name) {
-            const display = document.getElementById('folderNameDisplay');
-            display.innerText = name;
-            const backBtn = document.querySelector('.breadcrumbs .fa-chevron-right');
-            backBtn.outerHTML = navHistory.length > 0 ? `<i class="fa-solid fa-arrow-left" onclick="goBack()" style="cursor:pointer; margin:0 10px; color:var(--accent)"></i>` : `<i class="fa-solid fa-chevron-right" style="font-size: 0.7rem; opacity: 0.5;"></i>`;
+        function renderBreadcrumbs(currentName) {
+            const container = document.getElementById('breadcrumbs');
+            container.innerHTML = '';
+
+            // Home Button
+            const home = document.createElement('div');
+            home.className = 'crumb';
+            home.innerHTML = '<i class="fa-solid fa-house"></i> Home';
+            home.onclick = () => { navHistory=[]; currentFolder='root'; renderBreadcrumbs(); loadLibrary(); };
+            container.appendChild(home);
+
+            // Separator & Back Arrow Logic
+            if(currentFolder !== 'root') {
+                const sep = document.createElement('i');
+                sep.className = 'fa-solid fa-chevron-right crumb-sep';
+                container.appendChild(sep);
+
+                if(navHistory.length > 0) {
+                    // We are deep, show a Back Button
+                    const back = document.createElement('div');
+                    back.className = 'crumb';
+                    back.innerHTML = '<i class="fa-solid fa-arrow-left"></i> Back';
+                    back.style.color = 'var(--accent)';
+                    back.onclick = goBack;
+                    container.insertBefore(back, sep.nextSibling); // Insert after first separator
+                    
+                    const sep2 = document.createElement('i');
+                    sep2.className = 'fa-solid fa-chevron-right crumb-sep';
+                    container.appendChild(sep2);
+                }
+
+                const current = document.createElement('div');
+                current.className = 'crumb-active';
+                current.innerText = currentName || "Folder";
+                container.appendChild(current);
+            }
         }
 
         /* --- LIBRARY LOGIC --- */
@@ -460,18 +505,17 @@
 
             // 3. Smart Sorting
             if(isAlbum) {
-                // Sort by track_number (Ascending)
                 data.sort((a, b) => (parseInt(a.track_number) || 9999) - (parseInt(b.track_number) || 9999));
-                
-                // Logic: If album has no cover, use the cover of the first song that has one
                 if(!albumCover && data.length > 0) {
                     const firstSongWithCover = data.find(item => item.cover_url);
                     if(firstSongWithCover) albumCover = firstSongWithCover.cover_url;
                 }
             } else {
-                // Sort by Date (Newest First)
                 data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             }
+
+            // Update Breadcrumb name if we just loaded
+            if(currentFolder !== 'root') document.querySelector('.crumb-active').innerText = albumName;
 
             isAlbum ? renderAlbumView(container, data, albumName, albumCover) : renderGridView(container, data);
         }
@@ -487,13 +531,11 @@
                 if(selectedItems.has(item.id)) div.classList.add('selected');
                 div.id = 'box-' + item.id;
                 
-                // Drag Events
                 div.draggable = true;
                 div.ondragstart = (e) => e.dataTransfer.setData("text/plain", JSON.stringify({id: item.id, type: 'move'}));
                 div.ondragover = (e) => e.preventDefault();
                 div.ondrop = (e) => handleDropOnBox(e, item.id, item.type, item.subtype);
 
-                // Visuals
                 let visual = '';
                 if(item.cover_url) visual = `<img src="${item.cover_url}">`; 
                 else if(item.type === 'image') visual = `<img src="${item.url}">`;
@@ -530,9 +572,10 @@
                         <h1>${name}</h1>
                         <div class="album-meta">${items.length} Tracks • Album</div>
                         <div class="album-btns">
-                            <button class="pill-btn primary" onclick="playAlbumSequence('${items.length > 0 ? items[0].id : ''}')"><i class="fa-solid fa-play"></i> Play All</button>
+                            <button class="pill-btn primary" onclick="startQueue()"><i class="fa-solid fa-play"></i> Play All</button>
+                            <button class="pill-btn" onclick="startQueue(true)"><i class="fa-solid fa-shuffle"></i> Shuffle Play</button>
                             <button class="pill-btn" onclick="document.getElementById('coverInput').click()"><i class="fa-solid fa-image"></i> Change Cover</button>
-                            <button class="pill-btn" onclick="downloadAlbumAsZip('${name}', '${currentFolder}')"><i class="fa-solid fa-file-zipper"></i> Download ZIP</button>
+                            <button class="pill-btn" onclick="downloadAlbumAsZip('${name}', '${currentFolder}')"><i class="fa-solid fa-file-zipper"></i> ZIP</button>
                             <button class="pill-btn" onclick="renameBox('${currentFolder}', '${name}')"><i class="fa-solid fa-pen"></i> Rename</button>
                         </div>
                     </div>
@@ -540,11 +583,12 @@
                 <div class="tracklist">
                     ${items.map((item, i) => `
                         <div class="track-item" 
+                            id="track-${item.id}"
                             draggable="true"
                             ondragstart="handleTrackDragStart(event, ${item.id})"
                             ondragover="event.preventDefault()" 
                             ondrop="handleTrackDrop(event, ${item.id}, ${item.track_number}, ${i+1})"
-                            onclick="playOrView('${item.type}', '${item.url}', '${item.name}', '${item.cover_url || cover}')">
+                            onclick="playSingleFromList('${item.id}')">
                             
                             <div class="track-num">${item.track_number || i+1}</div>
                             <div class="track-title">${item.name}</div>
@@ -559,121 +603,136 @@
             `;
         }
 
-        /* --- PLAYBACK & ACTIONS --- */
-        function playOrView(type, url, name, cover) {
-            if(type === 'audio') playGlobalAudio(url, name, cover);
-            else if(type === 'image') openLightbox(url);
-            else window.open(url, '_blank');
+        /* --- AUDIO PLAYER ENGINE 2.0 --- */
+        function startQueue(shuffle = false) {
+            // Filter only audio files from current view
+            playQueue = libraryData.filter(item => item.type === 'audio');
+            
+            if(playQueue.length === 0) return showToast("No audio files here", "error");
+
+            if(shuffle) {
+                // Fisher-Yates Shuffle
+                for (let i = playQueue.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [playQueue[i], playQueue[j]] = [playQueue[j], playQueue[i]];
+                }
+                showToast("Queue Shuffled");
+            }
+
+            currentQueueIndex = 0;
+            loadAndPlayTrack(playQueue[0]);
+        }
+
+        function playSingleFromList(id) {
+            // Find track, but also set queue to context (so Next button works)
+            playQueue = libraryData.filter(item => item.type === 'audio');
+            const index = playQueue.findIndex(item => item.id == id);
+            
+            if(index !== -1) {
+                currentQueueIndex = index;
+                loadAndPlayTrack(playQueue[index]);
+            } else {
+                // It's a single file not in a list context (search result maybe)
+                const item = libraryData.find(i => i.id == id);
+                if(item && item.type === 'audio') {
+                    playQueue = [item];
+                    currentQueueIndex = 0;
+                    loadAndPlayTrack(item);
+                } else if(item && item.type === 'image') {
+                    openLightbox(item.url);
+                } else {
+                    window.open(item.url);
+                }
+            }
         }
 
         function playGlobalAudio(url, name, cover) {
+             // For stream messages or single plays
+             playQueue = [{url, name, cover_url: cover}];
+             currentQueueIndex = 0;
+             loadAndPlayTrack(playQueue[0]);
+        }
+
+        function loadAndPlayTrack(track) {
+            if(!track) return;
+            
+            // UI Updates
             const player = document.getElementById('audioPlayer');
-            const audio = document.getElementById('globalAudio');
             const art = document.getElementById('playerArt');
             
-            document.getElementById('playerTrackName').innerText = name;
+            document.getElementById('playerTrackName').innerText = track.name;
+            document.getElementById('playerStatus').innerText = "Playing";
+            
+            // Get Album Cover logic (Track cover -> Album Cover -> Default)
+            let cover = track.cover_url;
+            if(!cover) {
+                 // Try to find album cover from current view context
+                 const albumCover = libraryData.find(i => i.cover_url);
+                 if(albumCover) cover = albumCover.cover_url; 
+            }
+
             if(cover) { art.src = cover; art.style.display='block'; }
             else art.style.display='none';
             
             player.classList.add('visible');
             document.getElementById('fabContainer').classList.add('shifted');
             document.getElementById('inputArea').classList.add('shifted');
-            
-            audio.src = url;
-            audio.play();
+
+            // Highlight in list
+            document.querySelectorAll('.track-item').forEach(el => el.classList.remove('playing'));
+            const row = document.getElementById(`track-${track.id}`);
+            if(row) row.classList.add('playing');
+
+            audio.src = track.url;
+            audio.play().catch(e => console.log("Auto-play prevented", e));
+        }
+
+        function togglePlayPause() {
+            if(audio.paused) audio.play(); else audio.pause();
+        }
+
+        function updatePlayBtnState() {
+            const btn = document.getElementById('btnPlayPause');
+            btn.innerHTML = audio.paused ? '<i class="fa-solid fa-play"></i>' : '<i class="fa-solid fa-pause"></i>';
+        }
+
+        function playNext() {
+            if(currentQueueIndex < playQueue.length - 1) {
+                currentQueueIndex++;
+                loadAndPlayTrack(playQueue[currentQueueIndex]);
+            } else {
+                audio.pause();
+                document.getElementById('playerStatus').innerText = "End of Queue";
+            }
+        }
+
+        function playPrev() {
+            if(audio.currentTime > 3) {
+                audio.currentTime = 0; // Restart song if > 3s in
+            } else if(currentQueueIndex > 0) {
+                currentQueueIndex--;
+                loadAndPlayTrack(playQueue[currentQueueIndex]);
+            }
+        }
+
+        function shuffleQueue() {
+            startQueue(true);
         }
 
         function closePlayer() {
-            document.getElementById('globalAudio').pause();
+            audio.pause();
             document.getElementById('audioPlayer').classList.remove('visible');
             document.getElementById('fabContainer').classList.remove('shifted');
             document.getElementById('inputArea').classList.remove('shifted');
         }
 
-        /* --- COVER ART UPLOAD --- */
-        async function handleCoverUpload(e) {
-            const file = e.target.files[0];
-            if(!file) return;
-            
-            const loader = document.getElementById('loader');
-            loader.style.display = 'flex'; document.getElementById('loaderText').innerText = "Updating Cover...";
-
-            const fileName = `covers/${Date.now()}_${file.name}`;
-            const { data, error } = await supabase.storage.from('files').upload(fileName, file);
-            
-            if(!error) {
-                const { data: { publicUrl } } = supabase.storage.from('files').getPublicUrl(fileName);
-                // Update current folder's cover_url
-                await supabase.from('boxes').update({ cover_url: publicUrl }).eq('id', currentFolder);
-                loadLibrary();
-                showToast("Cover Updated", "success");
-            } else {
-                showToast("Upload Failed", "error");
-            }
-            
-            loader.style.display = 'none';
-            e.target.value = ""; // Reset input
-        }
-
-        /* --- STREAM LOGIC --- */
-        function loadStream() {
-            supabase.from('stream').select('*').order('created_at', { ascending: true }).limit(50)
-                .then(({ data }) => { if(data) data.forEach(appendMessage); });
-            supabase.channel('stream-channel').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stream' }, p => appendMessage(p.new)).subscribe();
-        }
-
-        function appendMessage(data) {
-            const feed = document.getElementById("streamFeed");
-            const row = document.createElement('div');
-            row.className = 'msg-row';
-
-            // Date Formatting
-            const date = new Date(data.created_at);
-            const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            const dateStr = date.toLocaleDateString([], {month:'short', day:'numeric'});
-
-            let contentHtml = '';
-            let typeClass = '';
-
-            if(data.type === 'text') {
-                contentHtml = data.content;
-            } else if(data.type === 'image') {
-                contentHtml = `<img src="${data.content}" onclick="openLightbox('${data.content}')">`;
-                typeClass = 'image-msg';
-            } else if(data.type === 'audio') {
-                typeClass = 'audio-msg';
-                contentHtml = `<i class="fa-solid fa-circle-play"></i> <span>${data.file_name}</span>`;
-                row.onclick = () => playGlobalAudio(data.content, data.file_name);
-            }
-
-            row.innerHTML = `
-                <div class="msg-content ${typeClass}">${contentHtml}</div>
-                <div class="msg-time">${timeStr} <br> ${dateStr}</div>
-            `;
-            
-            feed.appendChild(row);
-            // Scroll to bottom
-            window.scrollTo(0, document.body.scrollHeight);
-        }
-
-        async function sendText() {
-            const input = document.getElementById('chatInput');
-            if(input.value.trim()) await supabase.from('stream').insert({type:'text', content:input.value.trim()});
-            input.value="";
-        }
-
         /* --- UPLOAD & METADATA LOGIC --- */
-        function triggerUpload() { document.getElementById('fileInput').click(); }
-        document.getElementById('fileInput').onchange = (e) => { handleBatchUpload(Array.from(e.target.files), 'library'); e.target.value = ""; };
-        document.getElementById('syncInputFile').onchange = (e) => { if(e.target.files[0]) handleBatchUpload([e.target.files[0]], 'sync'); };
-
         async function handleBatchUpload(files, context) {
             if(files.length === 0) return;
             const loader = document.getElementById('loader');
             const loaderText = document.getElementById('loaderText');
             loader.style.display = 'flex';
 
-            // Logic to create album automatically if many files uploaded at root
             let targetParent = currentFolder;
             if(files.length > 1 && currentFolder === 'root' && context === 'library') {
                 const albumName = prompt(`Create album for these ${files.length} files?`, `Upload ${new Date().toLocaleDateString()}`);
@@ -695,7 +754,7 @@
         }
 
         async function uploadFile(file, context, specificParentId = null) {
-            const fileName = `${Date.now()}_${file.name.replace(/[^\x00-\x7F]/g, "")}`; // Sanitize filename
+            const fileName = `${Date.now()}_${file.name.replace(/[^\x00-\x7F]/g, "")}`;
             const { data, error } = await supabase.storage.from('files').upload(fileName, file);
             
             if(error) { showToast(`Error: ${file.name}`, "error"); return; }
@@ -706,14 +765,17 @@
             if(file.type.startsWith('image/')) type = 'image';
             else if(file.type.startsWith('audio/')) type = 'audio';
 
-            let meta = { cover: null, track: 0 };
+            let meta = { cover: null, track: 0, title: null };
             if(type === 'audio' && context === 'library') {
                 meta = await extractAudioMeta(file);
             }
 
+            // USE METADATA TITLE OR FALLBACK TO FILENAME
+            const displayName = meta.title || file.name;
+
             if(context === 'library') {
                 await supabase.from('boxes').insert({ 
-                    name: file.name, type: type, url: publicUrl, 
+                    name: displayName, type: type, url: publicUrl, 
                     cover_url: meta.cover, track_number: meta.track,
                     parent_id: specificParentId || currentFolder 
                 });
@@ -722,26 +784,24 @@
             }
         }
 
-        // UPDATED: More aggressive track number extraction
         function extractAudioMeta(file) {
             return new Promise((resolve) => {
-                // 1. Try Regex on Filename First (e.g. "01 Song.mp3" -> 1)
                 let filenameTrack = 0;
+                // Regex for "01 Song.mp3" or "1. Song.mp3"
                 const nameMatch = file.name.match(/^(\d+)[ ._-]/);
                 if(nameMatch) filenameTrack = parseInt(nameMatch[1]);
 
-                // 2. Try Reading ID3 Tags
-                const timeout = setTimeout(() => resolve({cover: null, track: filenameTrack}), 4000); // 4s timeout
+                const timeout = setTimeout(() => resolve({cover: null, track: filenameTrack, title: null}), 4000);
 
                 jsmediatags.read(file, {
                     onSuccess: async (tag) => {
                         clearTimeout(timeout);
                         let cover = null;
-                        let track = filenameTrack; // Default to regex result
-                        
+                        let track = filenameTrack;
+                        let title = tag.tags.title ? tag.tags.title.trim() : null;
+
                         // ID3 Track
                         if(tag.tags.track) {
-                            // Handle "1/12" format
                             const t = parseInt(tag.tags.track.toString().split('/')[0]);
                             if(!isNaN(t)) track = t;
                         }
@@ -761,43 +821,33 @@
                                 cover = publicUrl;
                             } catch(e) { console.log("Art extraction failed", e); }
                         }
-                        resolve({cover, track});
+                        resolve({cover, track, title});
                     },
-                    onError: (error) => {
+                    onError: () => {
                         clearTimeout(timeout);
-                        resolve({cover:null, track:filenameTrack});
+                        resolve({cover:null, track:filenameTrack, title:null});
                     }
                 });
             });
         }
 
-        /* --- DRAG & DROP REORDERING (ALBUMS) --- */
-        function handleTrackDragStart(e, id) {
-            e.dataTransfer.setData("text/plain", JSON.stringify({id: id, type: 'reorder'}));
-        }
-
-        async function handleTrackDrop(e, targetId, targetNum, fallbackNum) {
-            e.preventDefault(); e.stopPropagation();
-            try {
-                const data = JSON.parse(e.dataTransfer.getData("text/plain"));
-                if(data.type === 'reorder' && data.id !== targetId) {
-                    const { data: draggedItem } = await supabase.from('boxes').select('track_number').eq('id', data.id).single();
-                    const { data: targetItem } = await supabase.from('boxes').select('track_number').eq('id', targetId).single();
-                    
-                    // Swap logic or Insert Logic
-                    const newNum = targetItem.track_number || fallbackNum;
-                    const oldNum = draggedItem.track_number || 999;
-                    
-                    await supabase.from('boxes').update({track_number: newNum}).eq('id', data.id);
-                    await supabase.from('boxes').update({track_number: oldNum}).eq('id', targetId);
-                    
-                    loadLibrary();
-                    showToast("Order Updated");
-                }
-            } catch(e){}
-        }
-
         /* --- GENERIC HELPERS --- */
+        async function handleCoverUpload(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            const loader = document.getElementById('loader');
+            loader.style.display = 'flex'; document.getElementById('loaderText').innerText = "Updating Cover...";
+            const fileName = `covers/${Date.now()}_${file.name}`;
+            const { data, error } = await supabase.storage.from('files').upload(fileName, file);
+            if(!error) {
+                const { data: { publicUrl } } = supabase.storage.from('files').getPublicUrl(fileName);
+                await supabase.from('boxes').update({ cover_url: publicUrl }).eq('id', currentFolder);
+                loadLibrary();
+                showToast("Cover Updated", "success");
+            } else { showToast("Upload Failed", "error"); }
+            loader.style.display = 'none'; e.target.value = "";
+        }
+
         function handleBoxClick(e, item) {
             if(e.target.closest('.box-actions')) return;
             if (selectionMode) {
@@ -806,7 +856,7 @@
                 document.getElementById('btnGroup').style.display = selectedItems.size>0 ? 'flex':'none';
             } else {
                 if(item.subtype==='album' || item.type==='folder') navigateTo(item.id, item.name);
-                else playOrView(item.type, item.url, item.name, item.cover_url);
+                else playSingleFromList(item.id); // Context aware play
             }
         }
 
@@ -853,13 +903,10 @@
             const loader = document.getElementById('loader');
             const text = document.getElementById('loaderText');
             loader.style.display = 'flex'; text.innerText = "Zipping...";
-
             const { data: files } = await supabase.from('boxes').select('*').eq('parent_id', albumId);
             if(!files || files.length === 0) { alert("Empty album"); loader.style.display='none'; return; }
-
             const zip = new JSZip();
             const folder = zip.folder(albumName);
-
             const promises = files.map(async (file) => {
                 if(file.type === 'folder' || file.subtype === 'album') return; 
                 try {
@@ -868,7 +915,6 @@
                     folder.file(file.name, blob);
                 } catch (err) { console.error(err); }
             });
-
             await Promise.all(promises);
             zip.generateAsync({type:"blob"}).then(function(content) {
                 saveAs(content, `${albumName}.zip`);
@@ -909,6 +955,24 @@
                 }
             } catch(err) {}
         }
+        
+        function handleTrackDragStart(e, id) { e.dataTransfer.setData("text/plain", JSON.stringify({id: id, type: 'reorder'})); }
+        async function handleTrackDrop(e, targetId, targetNum, fallbackNum) {
+            e.preventDefault(); e.stopPropagation();
+            try {
+                const data = JSON.parse(e.dataTransfer.getData("text/plain"));
+                if(data.type === 'reorder' && data.id !== targetId) {
+                    const { data: draggedItem } = await supabase.from('boxes').select('track_number').eq('id', data.id).single();
+                    const { data: targetItem } = await supabase.from('boxes').select('track_number').eq('id', targetId).single();
+                    const newNum = targetItem.track_number || fallbackNum;
+                    const oldNum = draggedItem.track_number || 999;
+                    await supabase.from('boxes').update({track_number: newNum}).eq('id', data.id);
+                    await supabase.from('boxes').update({track_number: oldNum}).eq('id', targetId);
+                    loadLibrary();
+                    showToast("Order Updated");
+                }
+            } catch(e){}
+        }
 
         document.getElementById('library').ondragover = (e) => e.preventDefault();
         document.getElementById('library').ondrop = async (e) => {
@@ -919,17 +983,48 @@
 
         function subscribeRealtime() {
             supabase.channel('boxes-channel').on('postgres_changes', { event: '*', schema: 'public', table: 'boxes' }, payload => { loadLibrary(); }).subscribe();
+            supabase.channel('stream-channel').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stream' }, p => appendMessage(p.new)).subscribe();
         }
 
-        function openLightbox(url) {
-            document.getElementById('lightboxImg').src = url;
-            document.getElementById('lightbox').style.display = 'flex';
+        function loadStream() {
+            supabase.from('stream').select('*').order('created_at', { ascending: true }).limit(50)
+                .then(({ data }) => { if(data) data.forEach(appendMessage); });
         }
 
+        function appendMessage(data) {
+            const feed = document.getElementById("streamFeed");
+            const row = document.createElement('div');
+            row.className = 'msg-row';
+            const date = new Date(data.created_at);
+            const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const dateStr = date.toLocaleDateString([], {month:'short', day:'numeric'});
+            let contentHtml = '', typeClass = '';
+
+            if(data.type === 'text') { contentHtml = data.content; } 
+            else if(data.type === 'image') { contentHtml = `<img src="${data.content}" onclick="openLightbox('${data.content}')">`; typeClass = 'image-msg'; } 
+            else if(data.type === 'audio') {
+                typeClass = 'audio-msg';
+                contentHtml = `<i class="fa-solid fa-circle-play"></i> <span>${data.file_name}</span>`;
+                row.onclick = () => playGlobalAudio(data.content, data.file_name);
+            }
+            row.innerHTML = `<div class="msg-content ${typeClass}">${contentHtml}</div><div class="msg-time">${timeStr}<br>${dateStr}</div>`;
+            feed.appendChild(row);
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+        
+        async function sendText() {
+            const input = document.getElementById('chatInput');
+            if(input.value.trim()) await supabase.from('stream').insert({type:'text', content:input.value.trim()});
+            input.value="";
+        }
+        function openLightbox(url) { document.getElementById('lightboxImg').src = url; document.getElementById('lightbox').style.display = 'flex'; }
         function handlePaste(e) {
             const context = document.getElementById('library').classList.contains('active') ? 'library' : 'sync';
             if(e.clipboardData.files.length) handleBatchUpload(Array.from(e.clipboardData.files), context);
         }
+        function triggerUpload() { document.getElementById('fileInput').click(); }
+        document.getElementById('fileInput').onchange = (e) => { handleBatchUpload(Array.from(e.target.files), 'library'); e.target.value = ""; };
+        document.getElementById('syncInputFile').onchange = (e) => { if(e.target.files[0]) handleBatchUpload([e.target.files[0]], 'sync'); };
 
         init();
     </script>
