@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glass Cloud OS (Album Edition)</title>
+    <title>Glass Cloud OS (Final)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -48,19 +48,17 @@
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; padding-bottom: 150px; }
         
         .box {
-            border-radius: 18px; height: 160px; position: relative; display: flex; flex-direction: column;
+            border-radius: 20px; height: 160px; position: relative; display: flex; flex-direction: column;
             align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
             text-align: center; padding: 10px; overflow: hidden;
         }
         .box:hover { transform: translateY(-3px); border-color: var(--accent); background: rgba(255,255,255,0.08); }
-        /* Selection State */
         .box.selected { border: 2px solid var(--accent); background: var(--selected-bg); }
 
         .box img { width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; z-index: -1; opacity: 0.6; transition: 0.3s;}
         .box:hover img { opacity: 0.3; transform: scale(1.1); }
         .box.folder { border: 2px solid rgba(255,255,255,0.2); background: rgba(0, 210, 255, 0.05); }
         
-        /* Album Styling */
         .box.album { border: 2px solid var(--accent); background: rgba(0, 0, 0, 0.3); }
         .box.album .fa-compact-disc { animation: spin 10s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
@@ -73,12 +71,10 @@
         .action-btn:hover { background: var(--accent); color: #000; }
         .action-btn.delete:hover { background: #ff4757; }
 
-        /* --- ALBUM LIST VIEW --- */
+        /* --- ALBUM VIEW --- */
         .album-header { display: flex; align-items: flex-end; gap: 20px; margin-bottom: 30px; padding: 20px; background: linear-gradient(to top, rgba(0,0,0,0.5), transparent); border-radius: 20px; }
         .album-art { width: 150px; height: 150px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); object-fit: cover; background: #333; display: flex; align-items: center; justify-content: center; font-size: 50px; color: rgba(255,255,255,0.2); }
         .album-info h1 { margin: 0; font-size: 2.5rem; letter-spacing: -1px; }
-        .album-info p { margin: 5px 0 0; opacity: 0.7; }
-
         .tracklist { list-style: none; padding: 0; padding-bottom: 150px; }
         .track-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.2s; cursor: pointer; border-radius: 10px; }
         .track-item:hover { background: rgba(255,255,255,0.05); }
@@ -87,19 +83,59 @@
         .track-actions { opacity: 0; transition: 0.2s; display: flex; gap: 10px; }
         .track-item:hover .track-actions { opacity: 1; }
 
-        /* --- FAB & Selection UI --- */
+        /* --- SLEEK STREAM MESSAGES --- */
+        .stream-container { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; height: 100%; }
+        .stream-feed { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding: 15px; padding-bottom: 180px; }
+        
+        .msg { 
+            max-width: 80%; padding: 15px 25px; 
+            border-radius: 25px; /* Rounded bubbles */
+            position: relative; word-wrap: break-word; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .msg.text { 
+            background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(10px);
+            align-self: flex-start; 
+            border-bottom-left-radius: 5px; /* Chat bubble effect */
+        }
+        
+        .msg.image { 
+            background: transparent; padding: 0; box-shadow: none; 
+            align-self: flex-start; 
+        }
+        .msg img { 
+            max-width: 100%; border-radius: 25px; 
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .msg.audio { 
+            background: linear-gradient(135deg, rgba(0, 210, 255, 0.2), rgba(0, 210, 255, 0.05));
+            border: 1px solid rgba(0, 210, 255, 0.3); 
+            cursor: pointer; transition: 0.2s;
+            border-radius: 50px; /* Pill shape */
+            padding: 10px 20px;
+            align-self: flex-start;
+        }
+        .msg.audio:hover { transform: scale(1.02); background: rgba(0, 210, 255, 0.3); }
+        
+        .msg .timestamp { 
+            font-size: 0.65rem; opacity: 0.6; margin-top: 5px; 
+            text-align: right; 
+        }
+
+        /* --- FAB & Player --- */
         .fab-container { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: row; gap: 15px; z-index: 10000; transition: 0.3s; }
         .fab-container.shifted { bottom: 120px; }
         .fab-btn { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff; border: none; cursor: pointer; transition: 0.3s; box-shadow: 0 6px 20px rgba(0,0,0,0.5); }
         .btn-folder { background: var(--folder-color); }
         .btn-add { background: var(--accent); }
         .btn-select { background: #6c5ce7; }
-        .btn-group { background: #00b894; display: none; } /* Hidden until selecting */
-        
+        .btn-group { background: #00b894; display: none; }
         .fab-btn:hover { transform: scale(1.1); }
         .fab-btn.active-select { border: 3px solid white; }
 
-        /* --- Global Player --- */
         #audioPlayer {
             position: fixed; bottom: -100px; left: 0; width: 100%; height: 90px;
             background: rgba(15, 12, 41, 0.95); backdrop-filter: blur(20px);
@@ -111,20 +147,17 @@
         #audioPlayer.visible { bottom: 0; }
         .player-info { display: flex; align-items: center; gap: 15px; width: 30%; }
         .player-art { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; background: #333; }
-        .track-status { font-size: 0.75rem; color: var(--accent); }
         audio { width: 40%; height: 35px; border-radius: 20px; }
-        
+
         /* --- Loader --- */
         #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:none; justify-content:center; align-items:center; z-index: 99999; flex-direction: column; gap: 20px; backdrop-filter: blur(8px); }
         .progress-container { width: 300px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
         .progress-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.2s; }
-
-        /* Mobile tweaks */
+        
         @media (max-width: 600px) {
             .player-info { width: 20%; }
             .player-text { display: none; }
             audio { width: 65%; }
-            .album-header { flex-direction: column; align-items: center; text-align: center; }
         }
     </style>
 </head>
@@ -141,14 +174,12 @@
         <div class="breadcrumbs" id="breadcrumbs">
             <i class="fa-solid fa-house" onclick="navigateTo('root')"></i> <span id="folderNameDisplay"> / Home</span>
         </div>
-        
-        <div id="libraryContent">
-            </div>
+        <div id="libraryContent"></div>
     </div>
 
     <div id="sync" class="view">
-        <div class="stream-container" style="max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; height: 100%;">
-            <div id="streamFeed" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding-bottom: 180px;"></div>
+        <div class="stream-container">
+            <div class="stream-feed" id="streamFeed"></div>
         </div>
         <div class="input-area glass" id="inputArea" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 780px; display: flex; gap: 10px; padding: 10px; border-radius: 25px; z-index: 20; transition: 0.3s;">
             <button class="icon-btn" onclick="document.getElementById('syncInputFile').click()" style="background:none; border:none; color:var(--accent); font-size:1.2rem;"><i class="fa-solid fa-paperclip"></i></button>
@@ -167,7 +198,6 @@
     <div id="audioPlayer">
         <div class="player-info">
             <img src="" id="playerArt" class="player-art" style="display:none">
-            <div class="player-icon" id="playerIcon"><i class="fa-solid fa-music"></i></div>
             <div class="player-text" style="display:flex; flex-direction:column;">
                 <span style="font-weight:600; font-size:0.9rem; color:white;" id="playerTrackName">Select a song</span>
                 <span class="track-status">Now Playing</span>
@@ -184,25 +214,18 @@
         <div class="progress-container"><div class="progress-fill" id="progressFill"></div></div>
     </div>
     
-    <input type="file" id="fileInput" style="display: none;" multiple> <input type="file" id="syncInputFile" style="display: none;">
+    <input type="file" id="fileInput" style="display: none;" multiple>
+    <input type="file" id="syncInputFile" style="display: none;">
 
     <script>
-        // ==========================================
-        // CONFIGURATION
-        // ==========================================
         const SUPABASE_URL = 'https://loppfklgxwezjknpvoea.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_-LlJPYPevQgRqAj1LE7Abg_dOvzNB-g';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // State
         let currentFolder = 'root';
-        let currentFolderType = 'standard'; // 'standard' or 'album'
         let selectionMode = false;
         let selectedItems = new Set();
 
-        // ==========================================
-        // INIT
-        // ==========================================
         function init() {
             loadLibrary();
             subscribeRealtime();
@@ -211,87 +234,53 @@
             window.addEventListener('paste', handlePaste);
         }
 
-        // ==========================================
-        // LIBRARY LOGIC
-        // ==========================================
+        // --- LIBRARY LOGIC ---
         async function loadLibrary() {
             const container = document.getElementById("libraryContent");
             container.innerHTML = ""; 
 
-            // 1. Check if current folder is an Album
-            let isAlbum = false;
-            let albumCover = null;
-            let albumName = "Home";
+            let isAlbum = false, albumCover = null, albumName = "Home";
 
             if(currentFolder !== 'root') {
                 const { data: folderData } = await supabase.from('boxes').select('*').eq('id', currentFolder).single();
                 if(folderData) {
                     isAlbum = folderData.subtype === 'album';
-                    albumCover = folderData.cover_url;
                     albumName = folderData.name;
-                    currentFolderType = folderData.subtype || 'standard';
+                    albumCover = folderData.cover_url;
                 }
-            } else {
-                currentFolderType = 'standard';
             }
 
-            // 2. Fetch Items
-            const { data, error } = await supabase
-                .from('boxes')
-                .select('*')
-                .eq('parent_id', currentFolder)
-                .order('created_at', { ascending: false });
-
+            const { data } = await supabase.from('boxes').select('*').eq('parent_id', currentFolder).order('created_at', { ascending: false });
             if (!data) return;
 
-            // 3. Check for Cover Art (images inside the album)
-            // If an image exists named 'cover', 'art', 'folder', or just the first image, use it as cover.
+            // Auto-set cover if missing
             if (isAlbum && !albumCover) {
-                const potentialCover = data.find(item => item.type === 'image' && 
-                    (item.name.toLowerCase().includes('cover') || item.name.toLowerCase().includes('art') || item.name.toLowerCase().includes('folder')));
-                
-                if(potentialCover) {
-                    // Auto-update the album cover in DB if found
-                    albumCover = potentialCover.url;
-                    supabase.from('boxes').update({ cover_url: potentialCover.url }).eq('id', currentFolder).then();
-                } else {
-                    // Fallback to first image
-                    const firstImage = data.find(item => item.type === 'image');
-                    if(firstImage) albumCover = firstImage.url;
+                const img = data.find(i => i.type === 'image');
+                if(img) {
+                    albumCover = img.url;
+                    supabase.from('boxes').update({ cover_url: img.url }).eq('id', currentFolder).then();
                 }
             }
 
-            // 4. RENDER
-            if(isAlbum) {
-                renderAlbumView(container, data, albumName, albumCover);
-            } else {
-                renderGridView(container, data);
-            }
+            isAlbum ? renderAlbumView(container, data, albumName, albumCover) : renderGridView(container, data);
         }
-
-        // --- RENDERERS ---
 
         function renderGridView(container, items) {
             const grid = document.createElement('div');
             grid.className = 'grid';
-            
-            if(items.length === 0 && currentFolder !== 'root') {
-                grid.innerHTML = `<div style="width:100%;text-align:center;opacity:0.5;grid-column:1/-1;padding-top:50px;">Folder is empty</div>`;
-            }
+            if(items.length === 0 && currentFolder !== 'root') grid.innerHTML = `<div style="width:100%;text-align:center;opacity:0.5;grid-column:1/-1;padding-top:50px;">Folder is empty</div>`;
 
             items.forEach(item => {
                 const div = document.createElement('div');
-                div.className = `box glass ${item.subtype === 'album' ? 'album' : (item.type === 'folder' ? 'folder' : '')}`;
+                div.className = `box glass ${item.subtype === 'album'?'album':(item.type === 'folder'?'folder':'')}`;
                 if(selectedItems.has(item.id)) div.classList.add('selected');
                 div.id = 'box-' + item.id;
                 
-                // Drag events
                 div.draggable = true;
-                div.ondragstart = (e) => { e.dataTransfer.setData("text/plain", item.id); };
-                div.ondragover = (e) => { e.preventDefault(); };
+                div.ondragstart = (e) => e.dataTransfer.setData("text/plain", item.id);
+                div.ondragover = (e) => e.preventDefault();
                 div.ondrop = (e) => handleDropOnBox(e, item.id, item.type, item.subtype);
 
-                // Content
                 let visual = '';
                 if(item.cover_url) visual = `<img src="${item.cover_url}">`;
                 else if(item.type === 'image') visual = `<img src="${item.url}">`;
@@ -303,12 +292,11 @@
                 div.innerHTML = `
                     <div class="box-actions">
                         ${item.type !== 'folder' && item.subtype !== 'album' ? `<button class="action-btn" onclick="downloadFile('${item.url}', '${item.name}')"><i class="fa-solid fa-download"></i></button>` : ''}
-                        <button class="action-btn delete" onclick="deleteBox('${item.id}', '${item.name}', '${item.type}')"><i class="fa-solid fa-xmark"></i></button>
+                        <button class="action-btn delete" onclick="deleteBox('${item.id}')"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                     ${visual}
                     <div class="box-title">${item.name}</div>
                 `;
-
                 div.onclick = (e) => handleBoxClick(e, item);
                 grid.appendChild(div);
             });
@@ -316,275 +304,170 @@
         }
 
         function renderAlbumView(container, items, name, cover) {
-            // Header
-            const header = document.createElement('div');
-            header.className = 'album-header';
-            header.innerHTML = `
-                ${cover ? `<img src="${cover}" class="album-art">` : `<div class="album-art"><i class="fa-solid fa-music"></i></div>`}
-                <div class="album-info">
-                    <h1>${name}</h1>
-                    <p>${items.length} Items • Album View</p>
+            container.innerHTML += `
+                <div class="album-header">
+                    ${cover ? `<img src="${cover}" class="album-art">` : `<div class="album-art"><i class="fa-solid fa-music"></i></div>`}
+                    <div class="album-info"><h1>${name}</h1><p>${items.length} Items</p></div>
                 </div>
+                <ul class="tracklist">
+                    ${items.map((item, i) => `
+                        <li class="track-item" onclick="playGlobalAudio('${item.url}', '${item.name}', '${cover}')">
+                            <div class="track-icon"><i class="fa-solid ${item.type==='audio'?'fa-play-circle':(item.type==='image'?'fa-image':'fa-file')}"></i></div>
+                            <div class="track-name">${i+1}. ${item.name}</div>
+                            <div class="track-actions">
+                                <button class="action-btn" onclick="event.stopPropagation(); downloadFile('${item.url}', '${item.name}')"><i class="fa-solid fa-download"></i></button>
+                                <button class="action-btn delete" onclick="event.stopPropagation(); deleteBox('${item.id}')"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </li>
+                    `).join('')}
+                </ul>
             `;
-            container.appendChild(header);
-
-            // List
-            const ul = document.createElement('ul');
-            ul.className = 'tracklist';
-
-            items.forEach((item, index) => {
-                const li = document.createElement('li');
-                li.className = 'track-item';
-                li.ondragover = (e) => e.preventDefault(); // Allow dropping onto list
-                li.ondrop = (e) => handleDropOnBox(e, item.id, item.type); // Allow nesting if drop logic supported
-
-                let iconClass = 'fa-file';
-                if(item.type === 'audio') iconClass = 'fa-play-circle';
-                if(item.type === 'image') iconClass = 'fa-image';
-
-                li.innerHTML = `
-                    <div class="track-icon"><i class="fa-solid ${iconClass}"></i></div>
-                    <div class="track-name">${index + 1}. ${item.name}</div>
-                    <div class="track-actions">
-                        <button class="action-btn" onclick="downloadFile('${item.url}', '${item.name}')"><i class="fa-solid fa-download"></i></button>
-                        <button class="action-btn delete" onclick="deleteBox('${item.id}', '${item.name}', '${item.type}')"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                `;
-                li.onclick = (e) => {
-                    if(!e.target.closest('.action-btn')) {
-                        if(item.type === 'audio') playGlobalAudio(item.url, item.name, cover);
-                        else if(item.type === 'image') window.open(item.url, '_blank');
-                    }
-                };
-                ul.appendChild(li);
-            });
-            container.appendChild(ul);
         }
 
-        // ==========================================
-        // INTERACTIONS
-        // ==========================================
-        
+        // --- ACTIONS ---
         function handleBoxClick(e, item) {
-            // Prevent navigation if clicking buttons
             if(e.target.closest('.box-actions')) return;
-
             if (selectionMode) {
-                // Toggle Selection
-                const el = document.getElementById('box-' + item.id);
-                if(selectedItems.has(item.id)) {
-                    selectedItems.delete(item.id);
-                    el.classList.remove('selected');
-                } else {
-                    selectedItems.add(item.id);
-                    el.classList.add('selected');
-                }
-                updateSelectionUI();
+                selectedItems.has(item.id) ? selectedItems.delete(item.id) : selectedItems.add(item.id);
+                document.getElementById('box-'+item.id).classList.toggle('selected');
+                document.getElementById('btnGroup').style.display = selectedItems.size>0 ? 'flex':'none';
             } else {
-                // Normal Navigation
-                if(item.subtype === 'album' || item.type === 'folder') {
-                    navigateTo(item.id, item.name);
-                } else if (item.type === 'audio') {
-                    playGlobalAudio(item.url, item.name, item.cover_url);
-                } else if (item.type === 'image') {
-                    window.open(item.url, '_blank');
-                }
+                if(item.subtype==='album' || item.type==='folder') navigateTo(item.id, item.name);
+                else if(item.type==='audio') playGlobalAudio(item.url, item.name, item.cover_url);
+                else window.open(item.url, '_blank');
             }
         }
 
         function toggleSelectionMode() {
-            selectionMode = !selectionMode;
-            selectedItems.clear();
+            selectionMode = !selectionMode; selectedItems.clear();
             document.getElementById('btnSelect').classList.toggle('active-select');
-            document.querySelectorAll('.box').forEach(b => b.classList.remove('selected'));
-            updateSelectionUI();
-        }
-
-        function updateSelectionUI() {
-            const btnGroup = document.getElementById('btnGroup');
-            if(selectionMode && selectedItems.size > 0) {
-                btnGroup.style.display = 'flex';
-            } else {
-                btnGroup.style.display = 'none';
-            }
+            document.querySelectorAll('.box').forEach(b=>b.classList.remove('selected'));
+            document.getElementById('btnGroup').style.display = 'none';
         }
 
         async function groupSelectedIntoAlbum() {
-            const name = prompt("Name this Album:");
-            if(!name) return;
-
-            // 1. Create Album Folder
-            const { data: album, error } = await supabase.from('boxes').insert({
-                name: name,
-                type: 'folder',
-                subtype: 'album',
-                parent_id: currentFolder
-            }).select().single();
-
-            if(error) return alert("Error creating album");
-
-            // 2. Move Selected Items into Album
-            const ids = Array.from(selectedItems);
-            await supabase.from('boxes').update({ parent_id: album.id }).in('id', ids);
-
-            // 3. Reset
-            toggleSelectionMode();
-            loadLibrary();
+            const name = prompt("Album Name:"); if(!name) return;
+            const { data: album } = await supabase.from('boxes').insert({name:name, type:'folder', subtype:'album', parent_id:currentFolder}).select().single();
+            await supabase.from('boxes').update({parent_id:album.id}).in('id', Array.from(selectedItems));
+            toggleSelectionMode(); loadLibrary();
         }
 
-        // Navigation & CRUD
-        function navigateTo(folderId, folderName) {
-            currentFolder = folderId.toString();
-            document.getElementById('folderNameDisplay').innerText = folderId === 'root' ? " / Home" : ` / ${folderName}`;
+        function navigateTo(id, name) {
+            currentFolder = id.toString();
+            document.getElementById('folderNameDisplay').innerText = id==='root'?" / Home" : ` / ${name}`;
             loadLibrary();
         }
 
         async function createFolder() {
             const name = prompt("Folder Name:");
-            if(name) await supabase.from('boxes').insert({ name: name, type: 'folder', parent_id: currentFolder });
+            if(name) await supabase.from('boxes').insert({name:name, type:'folder', parent_id:currentFolder});
         }
 
-        async function deleteBox(id, fileName, type) {
-            if(!confirm("Delete item?")) return;
-            // Delete from DB
-            await supabase.from('boxes').delete().eq('id', id);
-            // Refresh UI (Manual refresh safer for folders)
-            loadLibrary(); 
+        async function deleteBox(id) {
+            if(confirm("Delete?")) { await supabase.from('boxes').delete().eq('id', id); loadLibrary(); }
         }
 
-        function downloadFile(url, filename) {
-            const a = document.createElement("a");
-            a.href = url; a.setAttribute("download", filename); a.target = "_blank"; a.click();
-        }
-
-        // Drag & Drop Logic
-        async function handleDropOnBox(e, targetId, targetType, targetSubtype) {
-            e.preventDefault(); e.stopPropagation();
-            const draggedId = e.dataTransfer.getData("text/plain");
-            
-            // Moving File into Folder
-            if((targetType === 'folder' || targetSubtype === 'album') && draggedId) {
-                // Check if we are dragging an Image onto an Album (Set Cover Art)
-                // This is tricky because draggedId is just an ID. We'd need to fetch type.
-                // Simplified: Just move it.
-                await supabase.from('boxes').update({ parent_id: targetId }).eq('id', draggedId);
-                loadLibrary();
-            }
-        }
-
-        // ==========================================
-        // PLAYER LOGIC
-        // ==========================================
         function playGlobalAudio(url, name, cover) {
             const player = document.getElementById('audioPlayer');
             const audio = document.getElementById('globalAudio');
-            const trackName = document.getElementById('playerTrackName');
-            const art = document.getElementById('playerArt');
-            const icon = document.getElementById('playerIcon');
-
+            document.getElementById('playerTrackName').innerText = name;
+            if(cover) { document.getElementById('playerArt').src = cover; document.getElementById('playerArt').style.display='block'; }
+            else document.getElementById('playerArt').style.display='none';
+            
             player.classList.add('visible');
             document.getElementById('fabContainer').classList.add('shifted');
             document.getElementById('inputArea').classList.add('shifted');
-
-            trackName.innerText = name;
-            audio.src = url;
-            
-            if(cover) {
-                art.src = cover;
-                art.style.display = 'block';
-                icon.style.display = 'none';
-            } else {
-                art.style.display = 'none';
-                icon.style.display = 'flex';
-            }
-            
-            audio.play();
+            audio.src = url; audio.play();
         }
 
         function closePlayer() {
-            const audio = document.getElementById('globalAudio');
-            audio.pause();
+            document.getElementById('globalAudio').pause();
             document.getElementById('audioPlayer').classList.remove('visible');
             document.getElementById('fabContainer').classList.remove('shifted');
             document.getElementById('inputArea').classList.remove('shifted');
         }
 
-        // ==========================================
-        // UPLOAD & SYNC
-        // ==========================================
+        function downloadFile(url, filename) {
+            const a = document.createElement("a"); a.href = url; a.setAttribute("download", filename); a.target = "_blank"; a.click();
+        }
+
+        // --- UPLOAD & DRAG ---
         document.getElementById('library').ondragover = (e) => e.preventDefault();
-        document.getElementById('library').ondrop = (e) => {
+        
+        // *** AUTO ALBUM LOGIC ***
+        document.getElementById('library').ondrop = async (e) => {
             e.preventDefault();
-            if(!e.target.closest('.box') && e.dataTransfer.files) {
-                Array.from(e.dataTransfer.files).forEach(f => uploadFile(f, 'library'));
+            if(e.target.closest('.box')) return; // Handled by box logic
+
+            const files = Array.from(e.dataTransfer.files);
+            if(files.length === 0) return;
+
+            // If multiple files dropped on background -> Create Album
+            if(files.length > 1 && currentFolder === 'root') {
+                const albumName = prompt(`Create album for these ${files.length} files? Enter name:`, `Upload ${new Date().toLocaleDateString()}`);
+                if(albumName) {
+                    // Create Folder First
+                    const { data: album } = await supabase.from('boxes').insert({
+                        name: albumName, type: 'folder', subtype: 'album', parent_id: currentFolder
+                    }).select().single();
+                    
+                    if(album) {
+                        // Upload all to this ID
+                        files.forEach(f => uploadFile(f, 'library', album.id));
+                    }
+                } else {
+                    // User cancelled, upload individually
+                    files.forEach(f => uploadFile(f, 'library'));
+                }
+            } else {
+                // Single file or inside folder already
+                files.forEach(f => uploadFile(f, 'library'));
             }
         };
+
+        async function handleDropOnBox(e, targetId, targetType, targetSubtype) {
+            e.preventDefault(); e.stopPropagation();
+            const draggedId = e.dataTransfer.getData("text/plain");
+            if((targetType === 'folder' || targetSubtype === 'album') && draggedId) {
+                await supabase.from('boxes').update({ parent_id: targetId }).eq('id', draggedId);
+                loadLibrary();
+            }
+        }
 
         function triggerUpload() { document.getElementById('fileInput').click(); }
-        document.getElementById('fileInput').onchange = (e) => { 
-            Array.from(e.target.files).forEach(f => uploadFile(f, 'library'));
-        };
-        document.getElementById('syncInputFile').onchange = (e) => { 
-            if(e.target.files[0]) uploadFile(e.target.files[0], 'sync'); 
-        };
+        document.getElementById('fileInput').onchange = (e) => Array.from(e.target.files).forEach(f => uploadFile(f, 'library'));
+        document.getElementById('syncInputFile').onchange = (e) => { if(e.target.files[0]) uploadFile(e.target.files[0], 'sync'); };
 
-        async function uploadFile(file, context) {
+        async function uploadFile(file, context, specificParentId = null) {
             const loader = document.getElementById('loader');
             const fill = document.getElementById('progressFill');
-            loader.style.display = 'flex';
-            
-            // Fake Progress
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress = Math.min(progress + Math.random() * 10, 90);
-                fill.style.width = progress + '%';
-            }, 200);
+            loader.style.display = 'flex'; fill.style.width='20%';
 
             const fileName = `${Date.now()}_${file.name}`;
-            const { data, error } = await supabase.storage.from('files').upload(fileName, file);
+            const { error } = await supabase.storage.from('files').upload(fileName, file);
+            if(error) { alert("Upload Error"); loader.style.display='none'; return; }
             
-            clearInterval(interval);
-
-            if(error) {
-                alert("Upload failed"); loader.style.display = 'none'; return;
-            }
-
-            fill.style.width = '100%';
+            fill.style.width='100%';
             const { data: { publicUrl } } = supabase.storage.from('files').getPublicUrl(fileName);
-
-            let type = 'file';
-            if (file.type.startsWith('image/')) type = 'image';
-            if (file.type.startsWith('audio/')) type = 'audio';
+            
+            let type = file.type.startsWith('image/') ? 'image' : (file.type.startsWith('audio/') ? 'audio' : 'file');
 
             if(context === 'library') {
-                await supabase.from('boxes').insert({ 
-                    name: file.name, 
-                    type: type, 
-                    url: publicUrl, 
-                    parent_id: currentFolder,
-                    subtype: 'standard'
+                await supabase.from('boxes').insert({
+                    name: file.name, type: type, url: publicUrl, 
+                    parent_id: specificParentId || currentFolder
                 });
             } else {
                 await supabase.from('stream').insert({ type: type, content: publicUrl, file_name: file.name });
             }
-            
             setTimeout(() => { loader.style.display = 'none'; fill.style.width='0'; }, 500);
         }
 
-        // Realtime Listener
-        function subscribeRealtime() {
-            supabase.channel('boxes-channel')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'boxes' }, payload => { loadLibrary(); })
-                .subscribe();
-        }
-
-        // Sync Stream Code (Identical to previous, condensed)
+        // --- STREAM ---
         function loadStream() {
-            const feed = document.getElementById("streamFeed");
             supabase.from('stream').select('*').order('created_at', { ascending: true }).limit(50)
-                .then(({ data }) => { if(data) data.forEach(msg => appendMessage(msg)); });
-            supabase.channel('stream-channel')
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stream' }, payload => { appendMessage(payload.new); }).subscribe();
+                .then(({ data }) => { if(data) data.forEach(appendMessage); });
+            supabase.channel('stream-channel').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'stream' }, p => appendMessage(p.new)).subscribe();
         }
         function appendMessage(data) {
             const feed = document.getElementById("streamFeed");
@@ -593,29 +476,31 @@
             div.className = 'msg glass ' + (data.type==='text'?'text':(data.type==='audio'?'audio':'image'));
             
             if(data.type==='text') div.innerHTML = `${data.content} <div class="timestamp">${time}</div>`;
-            else if(data.type==='image') div.innerHTML = `<img src="${data.content}" style="max-width:100%;border-radius:10px">`;
+            else if(data.type==='image') div.innerHTML = `<img src="${data.content}" onclick="window.open('${data.content}')">`;
             else if(data.type==='audio') {
-                div.innerHTML = `<i class="fa-solid fa-play-circle" style="color:var(--accent)"></i> ${data.file_name}`;
                 div.onclick = () => playGlobalAudio(data.content, data.file_name);
+                div.innerHTML = `<div style="display:flex; align-items:center; gap:10px; color:white"><i class="fa-solid fa-play"></i> ${data.file_name}</div><div class="timestamp">${time}</div>`;
             }
-            feed.appendChild(div);
-            feed.scrollTop = feed.scrollHeight;
+            feed.appendChild(div); feed.scrollTop = feed.scrollHeight;
         }
         async function sendText() {
             const input = document.getElementById('chatInput');
-            if(input.value.trim()) await supabase.from('stream').insert({ type: 'text', content: input.value.trim() });
-            input.value = "";
+            if(input.value.trim()) await supabase.from('stream').insert({type:'text', content:input.value.trim()});
+            input.value="";
         }
+
         function switchTab(tab) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
             document.getElementById(tab).classList.add('active');
             document.getElementById('tab-'+tab).classList.add('active');
-            const fab = document.getElementById('fabContainer');
-            fab.style.display = tab === 'library' ? 'flex' : 'none';
+            document.getElementById('fabContainer').style.display = tab === 'library' ? 'flex' : 'none';
         }
         function handlePaste(e) {
             if(e.clipboardData.files.length) Array.from(e.clipboardData.files).forEach(f => uploadFile(f, document.getElementById('library').classList.contains('active')?'library':'sync'));
+        }
+        function subscribeRealtime() {
+            supabase.channel('boxes-channel').on('postgres_changes', { event: '*', schema: 'public', table: 'boxes' }, payload => { loadLibrary(); }).subscribe();
         }
 
         init();
